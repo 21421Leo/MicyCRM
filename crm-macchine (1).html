@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CRM Macchine</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f0f0f;--sur:#181818;--sur2:#222;--bor:#2a2a2a;--acc:#d4a843;--acc2:#e8c870;--txt:#f0ede6;--txt2:#888;--txt3:#555;--red:#e05555;--green:#5cb85c;--blue:#5b9bd5;--rad:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:15px}
+.header{background:var(--sur);border-bottom:1px solid var(--bor);padding:14px 16px 10px;position:sticky;top:0;z-index:100}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--acc);letter-spacing:.08em}
+.logo-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--txt3);display:inline-block;margin-right:5px;transition:background .3s}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--red)}
+.sync-dot.loading{background:var(--acc);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-label{font-size:11px;color:var(--txt3)}
+.tabs{display:flex;gap:6px}
+.tab{flex:1;padding:8px;border-radius:7px;border:1px solid var(--bor);background:transparent;color:var(--txt2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:center}
+.tab.active{background:var(--acc);color:#000;border-color:var(--acc);font-weight:600}
+.content{padding:14px 14px 90px;max-width:600px;margin:0 auto}
+.search-bar{display:flex;gap:8px;margin-bottom:14px}
+.search-bar input{flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:10px 13px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.search-bar input:focus{border-color:var(--acc)}
+.search-bar input::placeholder{color:var(--txt3)}
+.btn-add{background:var(--acc);color:#000;border:none;border-radius:var(--rad);padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+.btn-ghost{background:var(--sur2);color:var(--txt2)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid var(--bor);background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.chip.active{border-color:var(--acc);color:var(--acc);background:rgba(212,168,67,.08)}
+.stats-bar{display:flex;gap:8px;margin-bottom:14px}
+.stat-pill{flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:8px 10px;text-align:center}
+.stat-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--acc)}
+.stat-lbl{font-size:10px;color:var(--txt3);margin-top:1px}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s}
+.card:active{border-color:var(--acc)}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.card-name{font-weight:600;font-size:15px;line-height:1.3}
+.card-company{font-size:12px;color:var(--txt2);margin-top:2px}
+.badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-cliente{background:rgba(91,155,213,.15);color:var(--blue)}
+.badge-fornitore{background:rgba(212,168,67,.12);color:var(--acc)}
+.badge-broker{background:rgba(92,184,92,.12);color:var(--green)}
+.badge-misto{background:rgba(224,85,85,.12);color:var(--red)}
+.badge-freddo{background:rgba(136,136,136,.12);color:var(--txt2)}
+.card-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.card-meta-item{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:3px}
+.card-note{font-size:12px;color:var(--txt2);margin-top:7px;line-height:1.4;border-top:1px solid var(--bor);padding-top:7px}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.tag{background:var(--sur2);color:var(--txt3);padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace}
+.seg-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:13px 14px 13px 18px;margin-bottom:9px;cursor:pointer;position:relative}
+.seg-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.seg-macchina{font-weight:600;font-size:15px}
+.seg-tipo-offerta{background:rgba(224,85,85,.12);color:var(--red)}
+.seg-tipo-richiesta{background:rgba(91,155,213,.12);color:var(--blue)}
+.seg-dettagli{font-family:'DM Mono',monospace;font-size:12px;color:var(--acc2);margin-top:5px}
+.seg-note{font-size:12px;color:var(--txt2);margin-top:7px;border-top:1px solid var(--bor);padding-top:7px;line-height:1.4}
+.empty{text-align:center;padding:50px 20px;color:var(--txt3)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--sur);border-radius:16px 16px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px 16px 40px}
+.modal-handle{width:36px;height:4px;background:var(--bor);border-radius:2px;margin:0 auto 18px}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:18px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--txt2);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.form-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:10px 12px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+.form-input:focus{border-color:var(--acc)}
+.form-input::placeholder{color:var(--txt3)}
+textarea.form-input{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-actions{display:flex;gap:8px;margin-top:18px}
+.btn-primary{flex:1;background:var(--acc);color:#000;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
+.btn-secondary{background:var(--sur2);color:var(--txt2);border:none;border-radius:9px;padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer}
+.detail-section{margin-bottom:16px}
+.detail-label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.detail-value{font-size:14px;color:var(--txt)}
+.detail-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
+.loading-logo{font-family:'DM Mono',monospace;font-size:16px;color:var(--acc);margin-bottom:16px;letter-spacing:.1em}
+.loading-spinner{width:32px;height:32px;border:2px solid var(--bor);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:12px;color:var(--txt3);margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading">
+  <div class="loading-logo">◈ CRM MACCHINE</div>
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Caricamento dati...</div>
+</div>
+
+<div id="app" style="display:none">
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo">◈ CRM MACCHINE</div>
+      <div class="logo-sub">MICY S.R.O.</div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span class="sync-label" id="sync-label">...</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('contatti')">👤 Contatti</button>
+    <button class="tab" onclick="switchTab('segnalazioni')">🔍 Macchine in giro</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="view-contatti">
+    <div id="stats-contatti" class="stats-bar"></div>
+    <div class="search-bar">
+      <input type="text" id="search-contatti" placeholder="Cerca nome, azienda, paese..." oninput="renderContatti()">
+      <button class="btn-add" onclick="openModalContatto()">+ Nuovo</button>
+    </div>
+    <div class="chips">
+      <button class="chip active" onclick="setFilterContatti('tutti',this)">Tutti</button>
+      <button class="chip" onclick="setFilterContatti('cliente',this)">Clienti</button>
+      <button class="chip" onclick="setFilterContatti('fornitore',this)">Fornitori</button>
+      <button class="chip" onclick="setFilterContatti('broker',this)">Broker</button>
+      <button class="chip" onclick="setFilterContatti('misto',this)">Misto</button>
+      <button class="chip" onclick="setFilterContatti('freddo',this)">Freddi</button>
+    </div>
+    <div id="list-contatti"></div>
+  </div>
+
+  <div id="view-segnalazioni" style="display:none">
+    <div id="stats-segnalazioni" class="stats-bar"></div>
+    <div class="search-bar">
+      <input type="text" id="search-segnalazioni" placeholder="Cerca macchina, marca..." oninput="renderSegnalazioni()">
+      <button class="btn-add" onclick="openModalSegnalazione()">+ Nuova</button>
+    </div>
+    <div class="chips">
+      <button class="chip active" onclick="setFilterSeg('tutti',this)">Tutte</button>
+      <button class="chip" onclick="setFilterSeg('aperta',this)">Aperte</button>
+      <button class="chip" onclick="setFilterSeg('offerta',this)">Offerte</button>
+      <button class="chip" onclick="setFilterSeg('richiesta',this)">Richieste</button>
+      <button class="chip" onclick="setFilterSeg('chiusa',this)">Chiuse</button>
+    </div>
+    <div id="list-segnalazioni"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL NUOVO CONTATTO -->
+<div class="modal-overlay hidden" id="modal-contatto">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-contatto-title">Nuovo Contatto</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nome *</label><input class="form-input" id="c-nome" placeholder="Marco"></div>
+      <div class="form-group"><label class="form-label">Cognome</label><input class="form-input" id="c-cognome" placeholder="Rossi"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Azienda</label><input class="form-input" id="c-azienda" placeholder="Rossi Macchine Srl"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tipo *</label>
+        <select class="form-input" id="c-tipo">
+          <option value="cliente">Cliente</option>
+          <option value="fornitore">Fornitore</option>
+          <option value="broker">Broker</option>
+          <option value="misto">Misto</option>
+          <option value="freddo">Freddo</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="c-paese" placeholder="Italia"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" id="c-tel" placeholder="+39..."></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="c-email" placeholder="@..."></div>
+    </div>
+    <div class="form-group"><label class="form-label">Cerca sempre</label><input class="form-input" id="c-cerca" placeholder="es. escavatori Cat, dumper..."></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="c-note" placeholder="Tutto quello che sai..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-contatto')">Annulla</button>
+      <button class="btn-primary" onclick="salvaContatto()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUOVA SEGNALAZIONE -->
+<div class="modal-overlay hidden" id="modal-segnalazione">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-seg-title">Macchina sentita in giro</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tipo *</label>
+        <select class="form-input" id="s-tipo">
+          <option value="offerta">Offerta (vendono)</option>
+          <option value="richiesta">Richiesta (cercano)</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Stato</label>
+        <select class="form-input" id="s-status">
+          <option value="aperta">Aperta</option>
+          <option value="chiusa">Chiusa</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Macchina *</label><input class="form-input" id="s-macchina" placeholder="es. Caterpillar 336 Escavatore"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Anno</label><input class="form-input" id="s-anno" placeholder="2018" type="number"></div>
+      <div class="form-group"><label class="form-label">Ore</label><input class="form-input" id="s-ore" placeholder="8500" type="number"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="s-prezzo" placeholder="95000" type="number"></div>
+      <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="s-paese" placeholder="Germania"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="s-contatto" placeholder="Nome contatto..." list="contatti-list"><datalist id="contatti-list"></datalist></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="s-note" placeholder="Condizioni, dettagli..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-segnalazione')">Annulla</button>
+      <button class="btn-primary" onclick="salvaSegnalazione()">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-detail-contatto">
+  <div class="modal" id="detail-contatto-content"></div>
+</div>
+<div class="modal-overlay hidden" id="modal-detail-seg">
+  <div class="modal" id="detail-seg-content"></div>
+</div>
+
+<script>
+const BIN_ID='6a02ee0d250b1311c33a87c7';
+const MASTER_KEY='$2a$10$Fp1SmnPMs5I59rGoK8kzW.GvacWccf.CZ8dC9sHc8Yl6ytz/4Jfji';
+const ACCESS_KEY='$2a$10$dAhYT3aMGNtOmj4i8K6ay.BIhIC4QudlZ7C8QbD1eHzGe0KsF1PEG';
+const API='https://api.jsonbin.io/v3/b/'+BIN_ID;
+let contatti=[],segnalazioni=[],filterC='tutti',filterS='tutti',editCId=null,editSId=null,currentTab='contatti',saving=false;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function today(){return new Date().toISOString().slice(0,10)}
+function daysAgo(d){if(!d)return'';const n=Math.floor((Date.now()-new Date(d))/86400000);return n===0?'oggi':n===1?'ieri':n+'gg fa'}
+function fmtE(n){return n?'€'+Number(n).toLocaleString('it-IT'):''}
+function setSync(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-label').textContent=text}
+async function loadData(){
+  setSync('loading','Caricamento...');
+  try{
+    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY}});
+    const d=await r.json();
+    contatti=d.record.contatti||[];
+    segnalazioni=d.record.segnalazioni||[];
+    setSync('ok','Sincronizzato');
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='block';
+    renderContatti();
+  }catch(e){
+    setSync('err','Errore connessione');
+    document.getElementById('loading').innerHTML='<div class="loading-logo">◈ CRM MACCHINE</div><div style="color:#e05555;font-size:14px;margin-top:16px;text-align:center">Errore di connessione.<br>Controlla internet e ricarica.</div>';
+  }
+}
+async function saveData(){
+  if(saving)return;saving=true;setSync('loading','Salvataggio...');
+  try{
+    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY},body:JSON.stringify({contatti,segnalazioni})});
+    setSync('ok','Salvato ✓');
+  }catch(e){setSync('err','Errore salvataggio')}
+  saving=false;
+}
+function switchTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='contatti')||(i===1&&t==='segnalazioni')));
+  document.getElementById('view-contatti').style.display=t==='contatti'?'':'none';
+  document.getElementById('view-segnalazioni').style.display=t==='segnalazioni'?'':'none';
+  t==='contatti'?renderContatti():renderSegnalazioni();
+}
+function setFilterContatti(f,el){filterC=f;document.querySelectorAll('#view-contatti .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderContatti()}
+function setFilterSeg(f,el){filterS=f;document.querySelectorAll('#view-segnalazioni .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderSegnalazioni()}
+const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto',freddo:'Freddo'};
+function renderContatti(){
+  const q=document.getElementById('search-contatti').value.toLowerCase();
+  const list=contatti.filter(c=>{const m=!q||[c.nome,c.cognome,c.azienda,c.paese,c.cerca,c.note].join(' ').toLowerCase().includes(q);return m&&(filterC==='tutti'||c.tipo===filterC)}).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const stats={cliente:0,fornitore:0,broker:0,misto:0,freddo:0};contatti.forEach(c=>stats[c.tipo]=(stats[c.tipo]||0)+1);
+  document.getElementById('stats-contatti').innerHTML=`<div class="stat-pill"><div class="stat-num">${contatti.length}</div><div class="stat-lbl">Totali</div></div><div class="stat-pill"><div class="stat-num">${stats.cliente||0}</div><div class="stat-lbl">Clienti</div></div><div class="stat-pill"><div class="stat-num">${stats.fornitore||0}</div><div class="stat-lbl">Fornitori</div></div><div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Broker/Misto</div></div>`;
+  const el=document.getElementById('list-contatti');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>${q?'Nessun risultato':'Nessun contatto ancora.<br>Aggiungine uno!'}</div>`;return}
+  el.innerHTML=list.map(c=>{const segs=segnalazioni.filter(s=>s.contatto===(c.nome+' '+(c.cognome||'')).trim()||s.contatto===c.azienda).length;return`<div class="card" onclick="openDetailContatto('${c.id}')"><div class="card-header"><div><div class="card-name">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div class="card-company">${c.azienda}</div>`:''}</div><span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span></div><div class="card-meta">${c.paese?`<span class="card-meta-item">📍 ${c.paese}</span>`:''}${c.tel?`<span class="card-meta-item">📱 ${c.tel}</span>`:''}${segs?`<span class="card-meta-item">🔍 ${segs} macchine</span>`:''}</div>${c.cerca?`<div class="card-tags">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}${c.note?`<div class="card-note">${c.note.slice(0,100)}${c.note.length>100?'…':''}</div>`:''}</div>`}).join('');
+}
+function renderSegnalazioni(){
+  const dl=document.getElementById('contatti-list');if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  const q=document.getElementById('search-segnalazioni').value.toLowerCase();
+  const list=segnalazioni.filter(s=>{const m=!q||[s.macchina,s.contatto,s.paese,s.note].join(' ').toLowerCase().includes(q);return m&&(filterS==='tutti'||s.tipo===filterS||s.status===filterS)}).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const aperte=segnalazioni.filter(s=>s.status==='aperta').length,offerte=segnalazioni.filter(s=>s.tipo==='offerta'&&s.status==='aperta').length,richieste=segnalazioni.filter(s=>s.tipo==='richiesta'&&s.status==='aperta').length;
+  document.getElementById('stats-segnalazioni').innerHTML=`<div class="stat-pill"><div class="stat-num">${segnalazioni.length}</div><div class="stat-lbl">Totali</div></div><div class="stat-pill"><div class="stat-num">${aperte}</div><div class="stat-lbl">Aperte</div></div><div class="stat-pill"><div class="stat-num">${offerte}</div><div class="stat-lbl">Offerte</div></div><div class="stat-pill"><div class="stat-num">${richieste}</div><div class="stat-lbl">Richieste</div></div>`;
+  const el=document.getElementById('list-segnalazioni');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div>${q?'Nessun risultato':'Nessuna macchina.<br>Aggiungila quando senti qualcosa!'}</div>`;return}
+  el.innerHTML=list.map(s=>{const col=s.status==='chiusa'?'var(--txt3)':(s.tipo==='offerta'?'var(--red)':'var(--blue)');let det=[];if(s.anno)det.push(s.anno);if(s.ore)det.push(Number(s.ore).toLocaleString('it-IT')+' ore');if(s.prezzo)det.push(fmtE(s.prezzo));return`<div class="seg-card" onclick="openDetailSeg('${s.id}')"><div class="seg-bar" style="background:${col}"></div><div class="card-header"><div class="seg-macchina">${s.macchina}</div><span class="badge seg-tipo-${s.tipo}">${s.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}<div class="card-meta">${s.contatto?`<span class="card-meta-item">📞 ${s.contatto}</span>`:''}${s.paese?`<span class="card-meta-item">📍 ${s.paese}</span>`:''}<span class="card-meta-item">🕐 ${daysAgo(s.createdAt)}</span></div>${s.note?`<div class="seg-note">${s.note.slice(0,100)}${s.note.length>100?'…':''}</div>`:''}</div>`}).join('');
+}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')})});
+function openModalContatto(id){
+  editCId=id||null;const c=id?contatti.find(x=>x.id===id):null;
+  document.getElementById('modal-contatto-title').textContent=id?'Modifica Contatto':'Nuovo Contatto';
+  ['c-nome','c-cognome','c-azienda','c-paese','c-tel','c-email','c-cerca','c-note'].forEach(k=>document.getElementById(k).value='');
+  if(c){document.getElementById('c-nome').value=c.nome||'';document.getElementById('c-cognome').value=c.cognome||'';document.getElementById('c-azienda').value=c.azienda||'';document.getElementById('c-tipo').value=c.tipo||'cliente';document.getElementById('c-paese').value=c.paese||'';document.getElementById('c-tel').value=c.tel||'';document.getElementById('c-email').value=c.email||'';document.getElementById('c-cerca').value=c.cerca||'';document.getElementById('c-note').value=c.note||''}
+  document.getElementById('modal-contatto').classList.remove('hidden');
+}
+function openModalSegnalazione(id){
+  editSId=id||null;const s=id?segnalazioni.find(x=>x.id===id):null;
+  document.getElementById('modal-seg-title').textContent=id?'Modifica':'Macchina sentita in giro';
+  ['s-macchina','s-anno','s-ore','s-prezzo','s-paese','s-contatto','s-note'].forEach(k=>document.getElementById(k).value='');
+  if(s){document.getElementById('s-tipo').value=s.tipo||'offerta';document.getElementById('s-status').value=s.status||'aperta';document.getElementById('s-macchina').value=s.macchina||'';document.getElementById('s-anno').value=s.anno||'';document.getElementById('s-ore').value=s.ore||'';document.getElementById('s-prezzo').value=s.prezzo||'';document.getElementById('s-paese').value=s.paese||'';document.getElementById('s-contatto').value=s.contatto||'';document.getElementById('s-note').value=s.note||''}
+  document.getElementById('contatti-list').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  document.getElementById('modal-segnalazione').classList.remove('hidden');
+}
+async function salvaContatto(){
+  const nome=document.getElementById('c-nome').value.trim();if(!nome){alert('Nome obbligatorio');return}
+  const obj={id:editCId||uid(),nome,cognome:document.getElementById('c-cognome').value.trim(),azienda:document.getElementById('c-azienda').value.trim(),tipo:document.getElementById('c-tipo').value,paese:document.getElementById('c-paese').value.trim(),tel:document.getElementById('c-tel').value.trim(),email:document.getElementById('c-email').value.trim(),cerca:document.getElementById('c-cerca').value.trim(),note:document.getElementById('c-note').value.trim(),createdAt:editCId?(contatti.find(c=>c.id===editCId)?.createdAt||today()):today()};
+  contatti=editCId?contatti.map(c=>c.id===editCId?obj:c):[obj,...contatti];
+  closeModal('modal-contatto');closeModal('modal-detail-contatto');renderContatti();await saveData();
+}
+async function salvaSegnalazione(){
+  const macchina=document.getElementById('s-macchina').value.trim();if(!macchina){alert('Macchina obbligatoria');return}
+  const obj={id:editSId||uid(),tipo:document.getElementById('s-tipo').value,status:document.getElementById('s-status').value,macchina,anno:document.getElementById('s-anno').value,ore:document.getElementById('s-ore').value,prezzo:document.getElementById('s-prezzo').value,paese:document.getElementById('s-paese').value.trim(),contatto:document.getElementById('s-contatto').value.trim(),note:document.getElementById('s-note').value.trim(),createdAt:editSId?(segnalazioni.find(s=>s.id===editSId)?.createdAt||today()):today()};
+  segnalazioni=editSId?segnalazioni.map(s=>s.id===editSId?obj:s):[obj,...segnalazioni];
+  closeModal('modal-segnalazione');closeModal('modal-detail-seg');renderSegnalazioni();await saveData();
+}
+function openDetailContatto(id){
+  const c=contatti.find(x=>x.id===id);if(!c)return;
+  const segs=segnalazioni.filter(s=>s.contatto===(c.nome+' '+(c.cognome||'')).trim()||s.contatto===c.azienda);
+  let segsHtml='';if(segs.length)segsHtml=`<div class="detail-section"><div class="detail-label">Macchine collegate (${segs.length})</div>${segs.map(s=>`<div style="background:var(--sur2);border-radius:7px;padding:8px 10px;margin-top:6px;font-size:13px"><span class="badge seg-tipo-${s.tipo}" style="font-size:10px">${s.tipo==='offerta'?'Offerta':'Richiesta'}</span> <strong style="margin-left:6px">${s.macchina}</strong>${s.anno||s.ore||s.prezzo?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--acc2);margin-top:3px">${[s.anno,s.ore?s.ore+' ore':'',fmtE(s.prezzo)].filter(Boolean).join(' · ')}</div>`:''}</div>`).join('')}</div>`;
+  document.getElementById('detail-contatto-content').innerHTML=`<div class="modal-handle"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px"><div><div style="font-size:19px;font-weight:700">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div style="color:var(--txt2);font-size:13px;margin-top:2px">${c.azienda}</div>`:''}</div><span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">${c.paese?`<div class="detail-section"><div class="detail-label">Paese</div><div class="detail-value">📍 ${c.paese}</div></div>`:''} ${c.tel?`<div class="detail-section"><div class="detail-label">WhatsApp</div><div class="detail-value"><a href="tel:${c.tel}" style="color:var(--acc);text-decoration:none">📱 ${c.tel}</a></div></div>`:''} ${c.email?`<div class="detail-section"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${c.email}" style="color:var(--acc);text-decoration:none">✉️ ${c.email}</a></div></div>`:''}</div>${c.cerca?`<div class="detail-section"><div class="detail-label">Cerca sempre</div><div class="card-tags" style="margin-top:5px">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div></div>`:''} ${c.note?`<div class="detail-section"><div class="detail-label">Note</div><div class="detail-value" style="line-height:1.5">${c.note}</div></div>`:''} ${segsHtml}<div class="detail-actions">${c.tel?`<a href="https://wa.me/${c.tel.replace(/[^0-9]/g,'')}" target="_blank"><button class="btn-sm btn-ghost">💬 WA</button></a>`:''}<button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-contatto');openModalContatto('${c.id}')">✏️ Modifica</button><button class="btn-sm btn-danger" onclick="eliminaContatto('${c.id}')">🗑 Elimina</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-contatto')">Chiudi</button></div>`;
+  document.getElementById('modal-detail-contatto').classList.remove('hidden');
+}
+function openDetailSeg(id){
+  const s=segnalazioni.find(x=>x.id===id);if(!s)return;
+  let det=[];if(s.anno)det.push({l:'Anno',v:s.anno});if(s.ore)det.push({l:'Ore',v:Number(s.ore).toLocaleString('it-IT')});if(s.prezzo)det.push({l:'Prezzo',v:fmtE(s.prezzo)});
+  document.getElementById('detail-seg-content').innerHTML=`<div class="modal-handle"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px"><div style="font-size:19px;font-weight:700;flex:1;padding-right:10px">${s.macchina}</div><span class="badge seg-tipo-${s.tipo}">${s.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} ${s.contatto||s.paese?`<div class="detail-section"><div class="detail-label">Fonte</div><div class="detail-value">${[s.contatto?'📞 '+s.contatto:'',s.paese?'📍 '+s.paese:''].filter(Boolean).join(' · ')}</div></div>`:''}<div class="detail-section"><div class="detail-label">Stato · aggiunto</div><div class="detail-value">${s.status==='aperta'?'🟡 Aperta':'⚫ Chiusa'} · ${daysAgo(s.createdAt)}</div></div>${s.note?`<div class="detail-section"><div class="detail-label">Note</div><div class="detail-value" style="line-height:1.5">${s.note}</div></div>`:''}<div class="detail-actions"><button class="btn-sm btn-ghost" onclick="toggleStatusSeg('${s.id}')">${s.status==='aperta'?'⚫ Chiudi':'🟡 Riapri'}</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-seg');openModalSegnalazione('${s.id}')">✏️ Modifica</button><button class="btn-sm btn-danger" onclick="eliminaSeg('${s.id}')">🗑 Elimina</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-seg')">Chiudi</button></div>`;
+  document.getElementById('modal-detail-seg').classList.remove('hidden');
+}
+async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);closeModal('modal-detail-contatto');renderContatti();await saveData()}
+async function eliminaSeg(id){if(!confirm('Eliminare?'))return;segnalazioni=segnalazioni.filter(s=>s.id!==id);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
+async function toggleStatusSeg(id){segnalazioni=segnalazioni.map(s=>s.id===id?{...s,status:s.status==='aperta'?'chiusa':'aperta'}:s);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
+loadData();
+</script>
+</body>
+</html>
