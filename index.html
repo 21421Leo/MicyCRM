@@ -9,20 +9,36 @@
 :root{--bg:#0f0f0f;--sur:#181818;--sur2:#222;--bor:#2a2a2a;--acc:#d4a843;--acc2:#e8c870;--txt:#f0ede6;--txt2:#888;--txt3:#555;--red:#e05555;--green:#5cb85c;--blue:#5b9bd5;--rad:10px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:15px}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:24px}
+.login-box{width:100%;max-width:300px}
+.login-logo{font-family:'DM Mono',monospace;font-size:15px;color:var(--acc);letter-spacing:.1em;text-align:center;margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:28px}
+.login-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:14px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;text-align:center;letter-spacing:.15em;margin-bottom:10px}
+.login-input:focus{border-color:var(--acc)}
+.login-btn{width:100%;background:var(--acc);color:#000;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
+.login-err{font-size:12px;color:var(--red);text-align:center;margin-top:8px;min-height:16px}
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:998}
+.loading-logo{font-family:'DM Mono',monospace;font-size:15px;color:var(--acc);margin-bottom:16px;letter-spacing:.1em}
+.loading-spinner{width:30px;height:30px;border:2px solid var(--bor);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
+.loading-text{font-size:12px;color:var(--txt3);margin-top:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* HEADER */
 .header{background:var(--sur);border-bottom:1px solid var(--bor);padding:14px 16px 10px;position:sticky;top:0;z-index:100}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--acc);letter-spacing:.08em}
 .logo-sub{font-size:11px;color:var(--txt3);margin-top:1px}
 .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--txt3);display:inline-block;margin-right:5px;transition:background .3s}
-.sync-dot.ok{background:var(--green)}
-.sync-dot.err{background:var(--red)}
-.sync-dot.loading{background:var(--acc);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-dot.ok{background:var(--green)}.sync-dot.err{background:var(--red)}.sync-dot.loading{background:var(--acc);animation:pulse 1s infinite}
 .sync-label{font-size:11px;color:var(--txt3)}
 .tabs{display:flex;gap:6px}
 .tab{flex:1;padding:8px;border-radius:7px;border:1px solid var(--bor);background:transparent;color:var(--txt2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:center}
 .tab.active{background:var(--acc);color:#000;border-color:var(--acc);font-weight:600}
+/* CONTENT */
 .content{padding:14px 14px 90px;max-width:600px;margin:0 auto}
+/* SEARCH */
 .search-bar{display:flex;gap:8px;margin-bottom:14px}
 .search-bar input{flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:10px 13px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
 .search-bar input:focus{border-color:var(--acc)}
@@ -31,14 +47,17 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .btn-sm{padding:5px 10px;font-size:12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
 .btn-ghost{background:var(--sur2);color:var(--txt2)}
 .btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+/* CHIPS */
 .chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
 .chips::-webkit-scrollbar{display:none}
 .chip{padding:5px 12px;border-radius:20px;border:1px solid var(--bor);background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .chip.active{border-color:var(--acc);color:var(--acc);background:rgba(212,168,67,.08)}
+/* STATS */
 .stats-bar{display:flex;gap:8px;margin-bottom:14px}
 .stat-pill{flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:8px 10px;text-align:center}
 .stat-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--acc)}
 .stat-lbl{font-size:10px;color:var(--txt3);margin-top:1px}
+/* CARDS */
 .card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:border-color .15s}
 .card:active{border-color:var(--acc)}
 .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
@@ -49,12 +68,16 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .badge-fornitore{background:rgba(212,168,67,.12);color:var(--acc)}
 .badge-broker{background:rgba(92,184,92,.12);color:var(--green)}
 .badge-misto{background:rgba(224,85,85,.12);color:var(--red)}
-.badge-freddo{background:rgba(136,136,136,.12);color:var(--txt2)}
 .card-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
-.card-meta-item{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:3px}
-.card-note{font-size:12px;color:var(--txt2);margin-top:7px;line-height:1.4;border-top:1px solid var(--bor);padding-top:7px}
+.card-meta-item{font-size:11px;color:var(--txt3)}
 .card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .tag{background:var(--sur2);color:var(--txt3);padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace}
+/* REMINDER BADGE */
+.remind-badge{background:rgba(224,85,85,.15);color:var(--red);border:1px solid rgba(224,85,85,.3);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+/* LOG PREVIEW */
+.last-log{font-size:12px;color:var(--txt2);margin-top:7px;padding-top:7px;border-top:1px solid var(--bor);line-height:1.4}
+.last-log-date{font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace}
+/* SEG CARDS */
 .seg-card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:13px 14px 13px 18px;margin-bottom:9px;cursor:pointer;position:relative}
 .seg-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .seg-macchina{font-weight:600;font-size:15px}
@@ -62,8 +85,27 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .seg-tipo-richiesta{background:rgba(91,155,213,.12);color:var(--blue)}
 .seg-dettagli{font-family:'DM Mono',monospace;font-size:12px;color:var(--acc2);margin-top:5px}
 .seg-note{font-size:12px;color:var(--txt2);margin-top:7px;border-top:1px solid var(--bor);padding-top:7px;line-height:1.4}
+/* EVENTS FEED */
+.events-feed{padding:0}
+.event-item{display:flex;gap:12px;margin-bottom:16px}
+.event-line{display:flex;flex-direction:column;align-items:center}
+.event-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);flex-shrink:0;margin-top:4px}
+.event-tail{flex:1;width:1px;background:var(--bor);margin-top:4px}
+.event-body{flex:1}
+.event-contact{font-size:11px;color:var(--acc);font-weight:600;margin-bottom:2px}
+.event-text{font-size:14px;color:var(--txt);line-height:1.5}
+.event-date{font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace;margin-top:3px}
+/* REMINDER SECTION */
+.remind-section{background:rgba(224,85,85,.06);border:1px solid rgba(224,85,85,.2);border-radius:var(--rad);padding:12px 14px;margin-bottom:14px}
+.remind-title{font-size:12px;color:var(--red);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
+.remind-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(224,85,85,.1)}
+.remind-item:last-child{border-bottom:none}
+.remind-name{font-size:13px;font-weight:500}
+.remind-days{font-size:11px;color:var(--red);font-family:'DM Mono',monospace}
+/* EMPTY */
 .empty{text-align:center;padding:50px 20px;color:var(--txt3)}
 .empty-icon{font-size:36px;margin-bottom:10px}
+/* MODALS */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:flex-end;justify-content:center}
 .modal-overlay.hidden{display:none}
 .modal{background:var(--sur);border-radius:16px 16px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px 16px 40px}
@@ -74,32 +116,32 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .form-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:10px 12px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
 .form-input:focus{border-color:var(--acc)}
 .form-input::placeholder{color:var(--txt3)}
-textarea.form-input{resize:vertical;min-height:70px}
+textarea.form-input{resize:vertical;min-height:80px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form-actions{display:flex;gap:8px;margin-top:18px}
 .btn-primary{flex:1;background:var(--acc);color:#000;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
 .btn-secondary{background:var(--sur2);color:var(--txt2);border:none;border-radius:9px;padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer}
-.detail-section{margin-bottom:16px}
+/* DETAIL */
 .detail-label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.detail-value{font-size:14px;color:var(--txt)}
+.detail-value{font-size:14px;color:var(--txt);margin-bottom:14px;line-height:1.5}
 .detail-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:24px}
-.login-box{width:100%;max-width:320px}
-.login-logo{font-family:'DM Mono',monospace;font-size:16px;color:var(--acc);letter-spacing:.1em;text-align:center;margin-bottom:6px}
-.login-sub{font-size:12px;color:var(--txt3);text-align:center;margin-bottom:32px}
-.login-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:14px 12px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;text-align:center;letter-spacing:.1em;margin-bottom:12px}
-.login-input:focus{border-color:var(--acc)}
-.login-btn{width:100%;background:var(--acc);color:#000;border:none;border-radius:9px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
-.login-err{font-size:12px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
-.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
-.loading-logo{font-family:'DM Mono',monospace;font-size:16px;color:var(--acc);margin-bottom:16px;letter-spacing:.1em}
-.loading-spinner{width:32px;height:32px;border:2px solid var(--bor);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:12px;color:var(--txt3);margin-top:12px}
+/* LOG IN DETAIL */
+.log-add-btn{width:100%;background:var(--sur2);border:1px dashed var(--bor);border-radius:8px;padding:11px;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:4px;margin-bottom:16px;text-align:center}
+.log-add-btn:active{border-color:var(--acc)}
+.section-title{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--bor)}
+/* MATCH */
+.match-box{background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.25);border-radius:var(--rad);padding:12px 14px;margin-bottom:14px}
+.match-title{font-size:11px;color:var(--acc);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.match-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(212,168,67,.1);cursor:pointer}
+.match-item:last-child{border-bottom:none}
+.match-name{font-size:13px;font-weight:500;color:var(--txt)}
+.match-sub{font-size:11px;color:var(--txt3);margin-top:1px}
+.match-kw{font-size:10px;color:var(--acc2);font-family:'DM Mono',monospace}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-box">
     <div class="login-logo">◈ CRM MACCHINE</div>
@@ -110,76 +152,91 @@ textarea.form-input{resize:vertical;min-height:70px}
   </div>
 </div>
 
+<!-- LOADING -->
 <div class="loading-screen" id="loading" style="display:none">
   <div class="loading-logo">◈ CRM MACCHINE</div>
   <div class="loading-spinner"></div>
-  <div class="loading-text">Caricamento dati...</div>
+  <div class="loading-text">Caricamento...</div>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none">
-<div class="header">
-  <div class="header-top">
-    <div>
-      <div class="logo">◈ CRM MACCHINE</div>
-      <div class="logo-sub">MICY S.R.O.</div>
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="logo">◈ CRM MACCHINE</div>
+        <div class="logo-sub">MICY S.R.O.</div>
+      </div>
+      <div style="display:flex;align-items:center">
+        <span class="sync-dot" id="sync-dot"></span>
+        <span class="sync-label" id="sync-label">...</span>
+      </div>
     </div>
-    <div style="display:flex;align-items:center">
-      <span class="sync-dot" id="sync-dot"></span>
-      <span class="sync-label" id="sync-label">...</span>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('contatti')">👤 Rubrica</button>
+      <button class="tab" onclick="switchTab('macchine')">🚜 Macchine</button>
+      <button class="tab" onclick="switchTab('eventi')">📋 Events</button>
     </div>
-  </div>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('contatti')">👤 Contatti</button>
-    <button class="tab" onclick="switchTab('segnalazioni')">🔍 Macchine in giro</button>
-  </div>
-</div>
-
-<div class="content">
-  <div id="view-contatti">
-    <div id="stats-contatti" class="stats-bar"></div>
-    <div class="search-bar">
-      <input type="text" id="search-contatti" placeholder="Cerca nome, azienda, paese..." oninput="renderContatti()">
-      <button class="btn-add" onclick="openModalContatto()">+ Nuovo</button>
-    </div>
-    <div class="chips">
-      <button class="chip active" onclick="setFilterContatti('tutti',this)">Tutti</button>
-      <button class="chip" onclick="setFilterContatti('cliente',this)">Clienti</button>
-      <button class="chip" onclick="setFilterContatti('fornitore',this)">Fornitori</button>
-      <button class="chip" onclick="setFilterContatti('broker',this)">Broker</button>
-      <button class="chip" onclick="setFilterContatti('misto',this)">Misto</button>
-      <button class="chip" onclick="setFilterContatti('freddo',this)">Freddi</button>
-    </div>
-    <div id="list-contatti"></div>
   </div>
 
-  <div id="view-segnalazioni" style="display:none">
-    <div id="stats-segnalazioni" class="stats-bar"></div>
-    <div class="search-bar">
-      <input type="text" id="search-segnalazioni" placeholder="Cerca macchina, marca..." oninput="renderSegnalazioni()">
-      <button class="btn-add" onclick="openModalSegnalazione()">+ Nuova</button>
+  <div class="content">
+
+    <!-- TAB CONTATTI -->
+    <div id="view-contatti">
+      <div id="remind-box"></div>
+      <div id="stats-contatti" class="stats-bar"></div>
+      <div class="search-bar">
+        <input type="text" id="search-contatti" placeholder="Cerca nome, azienda, paese..." oninput="renderContatti()">
+        <button class="btn-add" onclick="openModalContatto()">+ Nuovo</button>
+      </div>
+      <div class="chips">
+        <button class="chip active" onclick="setFilterC('tutti',this)">Tutti</button>
+        <button class="chip" onclick="setFilterC('cliente',this)">Clienti</button>
+        <button class="chip" onclick="setFilterC('fornitore',this)">Fornitori</button>
+        <button class="chip" onclick="setFilterC('broker',this)">Broker</button>
+        <button class="chip" onclick="setFilterC('misto',this)">Misto</button>
+      </div>
+      <div id="list-contatti"></div>
     </div>
-    <div class="chips">
-      <button class="chip active" onclick="setFilterSeg('tutti',this)">Tutte</button>
-      <button class="chip" onclick="setFilterSeg('aperta',this)">Aperte</button>
-      <button class="chip" onclick="setFilterSeg('offerta',this)">Offerte</button>
-      <button class="chip" onclick="setFilterSeg('richiesta',this)">Richieste</button>
-      <button class="chip" onclick="setFilterSeg('chiusa',this)">Chiuse</button>
+
+    <!-- TAB MACCHINE -->
+    <div id="view-macchine" style="display:none">
+      <div id="stats-macchine" class="stats-bar"></div>
+      <div class="search-bar">
+        <input type="text" id="search-macchine" placeholder="Cerca macchina, marca..." oninput="renderMacchine()">
+        <button class="btn-add" onclick="openModalMacchina()">+ Nuova</button>
+      </div>
+      <div class="chips">
+        <button class="chip active" onclick="setFilterM('tutti',this)">Tutte</button>
+        <button class="chip" onclick="setFilterM('aperta',this)">Aperte</button>
+        <button class="chip" onclick="setFilterM('offerta',this)">Offerte</button>
+        <button class="chip" onclick="setFilterM('richiesta',this)">Richieste</button>
+        <button class="chip" onclick="setFilterM('chiusa',this)">Chiuse</button>
+      </div>
+      <div id="list-macchine"></div>
     </div>
-    <div id="list-segnalazioni"></div>
+
+    <!-- TAB EVENTI -->
+    <div id="view-eventi" style="display:none">
+      <div class="search-bar">
+        <input type="text" id="search-eventi" placeholder="Cerca nei log..." oninput="renderEventi()">
+      </div>
+      <div id="list-eventi"></div>
+    </div>
+
   </div>
-</div>
 </div>
 
 <!-- MODAL NUOVO CONTATTO -->
 <div class="modal-overlay hidden" id="modal-contatto">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-contatto-title">Nuovo Contatto</div>
+    <div class="modal-title" id="mc-title">Nuovo Contatto</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Nome *</label><input class="form-input" id="c-nome" placeholder="Marco"></div>
       <div class="form-group"><label class="form-label">Cognome</label><input class="form-input" id="c-cognome" placeholder="Rossi"></div>
     </div>
-    <div class="form-group"><label class="form-label">Azienda</label><input class="form-input" id="c-azienda" placeholder="Rossi Macchine Srl"></div>
+    <div class="form-group"><label class="form-label">Azienda</label><input class="form-input" id="c-azienda" placeholder="Rossi Srl"></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Tipo *</label>
         <select class="form-input" id="c-tipo">
@@ -187,17 +244,11 @@ textarea.form-input{resize:vertical;min-height:70px}
           <option value="fornitore">Fornitore</option>
           <option value="broker">Broker</option>
           <option value="misto">Misto</option>
-          <option value="freddo">Freddo</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="c-paese" placeholder="Italia"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" id="c-tel" placeholder="+39..."></div>
-      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="c-email" placeholder="@..."></div>
-    </div>
     <div class="form-group"><label class="form-label">Cerca sempre</label><input class="form-input" id="c-cerca" placeholder="es. escavatori Cat, dumper..."></div>
-    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="c-note" placeholder="Tutto quello che sai..."></textarea></div>
     <div class="form-actions">
       <button class="btn-secondary" onclick="closeModal('modal-contatto')">Annulla</button>
       <button class="btn-primary" onclick="salvaContatto()">Salva</button>
@@ -205,48 +256,65 @@ textarea.form-input{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<!-- MODAL NUOVA SEGNALAZIONE -->
-<div class="modal-overlay hidden" id="modal-segnalazione">
+<!-- MODAL NUOVA MACCHINA -->
+<div class="modal-overlay hidden" id="modal-macchina">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-seg-title">Macchina sentita in giro</div>
+    <div class="modal-title" id="mm-title">Macchina sentita in giro</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Tipo *</label>
-        <select class="form-input" id="s-tipo">
+        <select class="form-input" id="m-tipo">
           <option value="offerta">Offerta (vendono)</option>
           <option value="richiesta">Richiesta (cercano)</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Stato</label>
-        <select class="form-input" id="s-status">
+        <select class="form-input" id="m-status">
           <option value="aperta">Aperta</option>
           <option value="chiusa">Chiusa</option>
         </select>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Macchina *</label><input class="form-input" id="s-macchina" placeholder="es. Caterpillar 336 Escavatore"></div>
+    <div class="form-group"><label class="form-label">Macchina *</label><input class="form-input" id="m-macchina" placeholder="es. Caterpillar 336 Escavatore"></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Anno</label><input class="form-input" id="s-anno" placeholder="2018" type="number"></div>
-      <div class="form-group"><label class="form-label">Ore</label><input class="form-input" id="s-ore" placeholder="8500" type="number"></div>
+      <div class="form-group"><label class="form-label">Anno</label><input class="form-input" id="m-anno" type="number" placeholder="2018"></div>
+      <div class="form-group"><label class="form-label">Ore</label><input class="form-input" id="m-ore" type="number" placeholder="8500"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="s-prezzo" placeholder="95000" type="number"></div>
-      <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="s-paese" placeholder="Germania"></div>
+      <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="m-prezzo" type="number" placeholder="95000"></div>
+      <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="m-paese" placeholder="Germania"></div>
     </div>
-    <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="s-contatto" placeholder="Nome contatto..." list="contatti-list"><datalist id="contatti-list"></datalist></div>
-    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="s-note" placeholder="Condizioni, dettagli..."></textarea></div>
+    <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="m-note" placeholder="Condizioni, dettagli, attrezzature..."></textarea></div>
     <div class="form-actions">
-      <button class="btn-secondary" onclick="closeModal('modal-segnalazione')">Annulla</button>
-      <button class="btn-primary" onclick="salvaSegnalazione()">Salva</button>
+      <button class="btn-secondary" onclick="closeModal('modal-macchina')">Annulla</button>
+      <button class="btn-primary" onclick="salvaMacchina()">Salva</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay hidden" id="modal-detail-contatto">
-  <div class="modal" id="detail-contatto-content"></div>
+<!-- MODAL AGGIUNGI LOG -->
+<div class="modal-overlay hidden" id="modal-log">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Aggiungi aggiornamento</div>
+    <div class="form-group" id="log-contact-info" style="font-size:13px;color:var(--acc);margin-bottom:12px"></div>
+    <div class="form-group"><textarea class="form-input" id="log-testo" placeholder="Cosa è successo? Cosa ti ha detto? Cosa ha comprato o venduto?" style="min-height:120px"></textarea></div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-log')">Annulla</button>
+      <button class="btn-primary" onclick="salvaLog()">Salva</button>
+    </div>
+  </div>
 </div>
-<div class="modal-overlay hidden" id="modal-detail-seg">
-  <div class="modal" id="detail-seg-content"></div>
+
+<!-- MODAL DETTAGLIO CONTATTO -->
+<div class="modal-overlay hidden" id="modal-detail-c">
+  <div class="modal" id="detail-c-content"></div>
+</div>
+
+<!-- MODAL DETTAGLIO MACCHINA -->
+<div class="modal-overlay hidden" id="modal-detail-m">
+  <div class="modal" id="detail-m-content"></div>
 </div>
 
 <script>
@@ -254,119 +322,25 @@ const BIN_ID='6a02ee0d250b1311c33a87c7';
 const MASTER_KEY='$2a$10$Fp1SmnPMs5I59rGoK8kzW.GvacWccf.CZ8dC9sHc8Yl6ytz/4Jfji';
 const ACCESS_KEY='$2a$10$dAhYT3aMGNtOmj4i8K6ay.BIhIC4QudlZ7C8QbD1eHzGe0KsF1PEG';
 const API='https://api.jsonbin.io/v3/b/'+BIN_ID;
-let contatti=[],segnalazioni=[],filterC='tutti',filterS='tutti',editCId=null,editSId=null,currentTab='contatti',saving=false;
+const PWD='micy2024';
+const REMIND_DAYS=60;
+
+let contatti=[],macchine=[],eventi=[],filterC='tutti',filterM='tutti',editCId=null,editMId=null,logContactId=null,currentTab='contatti',saving=false;
+
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function today(){return new Date().toISOString().slice(0,10)}
-function daysAgo(d){if(!d)return'';const n=Math.floor((Date.now()-new Date(d))/86400000);return n===0?'oggi':n===1?'ieri':n+'gg fa'}
+function fmtDate(d){if(!d)return'';const dt=new Date(d);return dt.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})}
+function daysAgo(d){if(!d)return 999;return Math.floor((Date.now()-new Date(d))/86400000)}
 function fmtE(n){return n?'€'+Number(n).toLocaleString('it-IT'):''}
-function setSync(state,text){document.getElementById('sync-dot').className='sync-dot '+state;document.getElementById('sync-label').textContent=text}
-async function loadData(){
-  setSync('loading','Caricamento...');
-  try{
-    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY}});
-    const d=await r.json();
-    contatti=d.record.contatti||[];
-    segnalazioni=d.record.segnalazioni||[];
-    setSync('ok','Sincronizzato');
-    document.getElementById('loading').style.display='none';
-    document.getElementById('app').style.display='block';
-    renderContatti();
-  }catch(e){
-    setSync('err','Errore connessione');
-    document.getElementById('loading').innerHTML='<div class="loading-logo">◈ CRM MACCHINE</div><div style="color:#e05555;font-size:14px;margin-top:16px;text-align:center">Errore di connessione.<br>Controlla internet e ricarica.</div>';
-  }
-}
-async function saveData(){
-  if(saving)return;saving=true;setSync('loading','Salvataggio...');
-  try{
-    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY},body:JSON.stringify({contatti,segnalazioni})});
-    setSync('ok','Salvato ✓');
-  }catch(e){setSync('err','Errore salvataggio')}
-  saving=false;
-}
-function switchTab(t){
-  currentTab=t;
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='contatti')||(i===1&&t==='segnalazioni')));
-  document.getElementById('view-contatti').style.display=t==='contatti'?'':'none';
-  document.getElementById('view-segnalazioni').style.display=t==='segnalazioni'?'':'none';
-  t==='contatti'?renderContatti():renderSegnalazioni();
-}
-function setFilterContatti(f,el){filterC=f;document.querySelectorAll('#view-contatti .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderContatti()}
-function setFilterSeg(f,el){filterS=f;document.querySelectorAll('#view-segnalazioni .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderSegnalazioni()}
-const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto',freddo:'Freddo'};
-function renderContatti(){
-  const q=document.getElementById('search-contatti').value.toLowerCase();
-  const list=contatti.filter(c=>{const m=!q||[c.nome,c.cognome,c.azienda,c.paese,c.cerca,c.note].join(' ').toLowerCase().includes(q);return m&&(filterC==='tutti'||c.tipo===filterC)}).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  const stats={cliente:0,fornitore:0,broker:0,misto:0,freddo:0};contatti.forEach(c=>stats[c.tipo]=(stats[c.tipo]||0)+1);
-  document.getElementById('stats-contatti').innerHTML=`<div class="stat-pill"><div class="stat-num">${contatti.length}</div><div class="stat-lbl">Totali</div></div><div class="stat-pill"><div class="stat-num">${stats.cliente||0}</div><div class="stat-lbl">Clienti</div></div><div class="stat-pill"><div class="stat-num">${stats.fornitore||0}</div><div class="stat-lbl">Fornitori</div></div><div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Broker/Misto</div></div>`;
-  const el=document.getElementById('list-contatti');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>${q?'Nessun risultato':'Nessun contatto ancora.<br>Aggiungine uno!'}</div>`;return}
-  el.innerHTML=list.map(c=>{const segs=segnalazioni.filter(s=>s.contatto===(c.nome+' '+(c.cognome||'')).trim()||s.contatto===c.azienda).length;return`<div class="card" onclick="openDetailContatto('${c.id}')"><div class="card-header"><div><div class="card-name">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div class="card-company">${c.azienda}</div>`:''}</div><span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span></div><div class="card-meta">${c.paese?`<span class="card-meta-item">📍 ${c.paese}</span>`:''}${c.tel?`<span class="card-meta-item">📱 ${c.tel}</span>`:''}${segs?`<span class="card-meta-item">🔍 ${segs} macchine</span>`:''}</div>${c.cerca?`<div class="card-tags">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}${c.note?`<div class="card-note">${c.note.slice(0,100)}${c.note.length>100?'…':''}</div>`:''}</div>`}).join('');
-}
-function renderSegnalazioni(){
-  const dl=document.getElementById('contatti-list');if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
-  const q=document.getElementById('search-segnalazioni').value.toLowerCase();
-  const list=segnalazioni.filter(s=>{const m=!q||[s.macchina,s.contatto,s.paese,s.note].join(' ').toLowerCase().includes(q);return m&&(filterS==='tutti'||s.tipo===filterS||s.status===filterS)}).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  const aperte=segnalazioni.filter(s=>s.status==='aperta').length,offerte=segnalazioni.filter(s=>s.tipo==='offerta'&&s.status==='aperta').length,richieste=segnalazioni.filter(s=>s.tipo==='richiesta'&&s.status==='aperta').length;
-  document.getElementById('stats-segnalazioni').innerHTML=`<div class="stat-pill"><div class="stat-num">${segnalazioni.length}</div><div class="stat-lbl">Totali</div></div><div class="stat-pill"><div class="stat-num">${aperte}</div><div class="stat-lbl">Aperte</div></div><div class="stat-pill"><div class="stat-num">${offerte}</div><div class="stat-lbl">Offerte</div></div><div class="stat-pill"><div class="stat-num">${richieste}</div><div class="stat-lbl">Richieste</div></div>`;
-  const el=document.getElementById('list-segnalazioni');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div>${q?'Nessun risultato':'Nessuna macchina.<br>Aggiungila quando senti qualcosa!'}</div>`;return}
-  el.innerHTML=list.map(s=>{const col=s.status==='chiusa'?'var(--txt3)':(s.tipo==='offerta'?'var(--red)':'var(--blue)');let det=[];if(s.anno)det.push(s.anno);if(s.ore)det.push(Number(s.ore).toLocaleString('it-IT')+' ore');if(s.prezzo)det.push(fmtE(s.prezzo));return`<div class="seg-card" onclick="openDetailSeg('${s.id}')"><div class="seg-bar" style="background:${col}"></div><div class="card-header"><div class="seg-macchina">${s.macchina}</div><span class="badge seg-tipo-${s.tipo}">${s.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}<div class="card-meta">${s.contatto?`<span class="card-meta-item">📞 ${s.contatto}</span>`:''}${s.paese?`<span class="card-meta-item">📍 ${s.paese}</span>`:''}<span class="card-meta-item">🕐 ${daysAgo(s.createdAt)}</span></div>${s.note?`<div class="seg-note">${s.note.slice(0,100)}${s.note.length>100?'…':''}</div>`:''}</div>`}).join('');
-}
-function closeModal(id){document.getElementById(id).classList.add('hidden')}
-document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')})});
-function openModalContatto(id){
-  editCId=id||null;const c=id?contatti.find(x=>x.id===id):null;
-  document.getElementById('modal-contatto-title').textContent=id?'Modifica Contatto':'Nuovo Contatto';
-  ['c-nome','c-cognome','c-azienda','c-paese','c-tel','c-email','c-cerca','c-note'].forEach(k=>document.getElementById(k).value='');
-  if(c){document.getElementById('c-nome').value=c.nome||'';document.getElementById('c-cognome').value=c.cognome||'';document.getElementById('c-azienda').value=c.azienda||'';document.getElementById('c-tipo').value=c.tipo||'cliente';document.getElementById('c-paese').value=c.paese||'';document.getElementById('c-tel').value=c.tel||'';document.getElementById('c-email').value=c.email||'';document.getElementById('c-cerca').value=c.cerca||'';document.getElementById('c-note').value=c.note||''}
-  document.getElementById('modal-contatto').classList.remove('hidden');
-}
-function openModalSegnalazione(id){
-  editSId=id||null;const s=id?segnalazioni.find(x=>x.id===id):null;
-  document.getElementById('modal-seg-title').textContent=id?'Modifica':'Macchina sentita in giro';
-  ['s-macchina','s-anno','s-ore','s-prezzo','s-paese','s-contatto','s-note'].forEach(k=>document.getElementById(k).value='');
-  if(s){document.getElementById('s-tipo').value=s.tipo||'offerta';document.getElementById('s-status').value=s.status||'aperta';document.getElementById('s-macchina').value=s.macchina||'';document.getElementById('s-anno').value=s.anno||'';document.getElementById('s-ore').value=s.ore||'';document.getElementById('s-prezzo').value=s.prezzo||'';document.getElementById('s-paese').value=s.paese||'';document.getElementById('s-contatto').value=s.contatto||'';document.getElementById('s-note').value=s.note||''}
-  document.getElementById('contatti-list').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
-  document.getElementById('modal-segnalazione').classList.remove('hidden');
-}
-async function salvaContatto(){
-  const nome=document.getElementById('c-nome').value.trim();if(!nome){alert('Nome obbligatorio');return}
-  const obj={id:editCId||uid(),nome,cognome:document.getElementById('c-cognome').value.trim(),azienda:document.getElementById('c-azienda').value.trim(),tipo:document.getElementById('c-tipo').value,paese:document.getElementById('c-paese').value.trim(),tel:document.getElementById('c-tel').value.trim(),email:document.getElementById('c-email').value.trim(),cerca:document.getElementById('c-cerca').value.trim(),note:document.getElementById('c-note').value.trim(),createdAt:editCId?(contatti.find(c=>c.id===editCId)?.createdAt||today()):today()};
-  contatti=editCId?contatti.map(c=>c.id===editCId?obj:c):[obj,...contatti];
-  closeModal('modal-contatto');closeModal('modal-detail-contatto');renderContatti();await saveData();
-}
-async function salvaSegnalazione(){
-  const macchina=document.getElementById('s-macchina').value.trim();if(!macchina){alert('Macchina obbligatoria');return}
-  const obj={id:editSId||uid(),tipo:document.getElementById('s-tipo').value,status:document.getElementById('s-status').value,macchina,anno:document.getElementById('s-anno').value,ore:document.getElementById('s-ore').value,prezzo:document.getElementById('s-prezzo').value,paese:document.getElementById('s-paese').value.trim(),contatto:document.getElementById('s-contatto').value.trim(),note:document.getElementById('s-note').value.trim(),createdAt:editSId?(segnalazioni.find(s=>s.id===editSId)?.createdAt||today()):today()};
-  segnalazioni=editSId?segnalazioni.map(s=>s.id===editSId?obj:s):[obj,...segnalazioni];
-  closeModal('modal-segnalazione');closeModal('modal-detail-seg');renderSegnalazioni();await saveData();
-}
-function openDetailContatto(id){
-  const c=contatti.find(x=>x.id===id);if(!c)return;
-  const segs=segnalazioni.filter(s=>s.contatto===(c.nome+' '+(c.cognome||'')).trim()||s.contatto===c.azienda);
-  let segsHtml='';if(segs.length)segsHtml=`<div class="detail-section"><div class="detail-label">Macchine collegate (${segs.length})</div>${segs.map(s=>`<div style="background:var(--sur2);border-radius:7px;padding:8px 10px;margin-top:6px;font-size:13px"><span class="badge seg-tipo-${s.tipo}" style="font-size:10px">${s.tipo==='offerta'?'Offerta':'Richiesta'}</span> <strong style="margin-left:6px">${s.macchina}</strong>${s.anno||s.ore||s.prezzo?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--acc2);margin-top:3px">${[s.anno,s.ore?s.ore+' ore':'',fmtE(s.prezzo)].filter(Boolean).join(' · ')}</div>`:''}</div>`).join('')}</div>`;
-  document.getElementById('detail-contatto-content').innerHTML=`<div class="modal-handle"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px"><div><div style="font-size:19px;font-weight:700">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div style="color:var(--txt2);font-size:13px;margin-top:2px">${c.azienda}</div>`:''}</div><span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">${c.paese?`<div class="detail-section"><div class="detail-label">Paese</div><div class="detail-value">📍 ${c.paese}</div></div>`:''} ${c.tel?`<div class="detail-section"><div class="detail-label">WhatsApp</div><div class="detail-value"><a href="tel:${c.tel}" style="color:var(--acc);text-decoration:none">📱 ${c.tel}</a></div></div>`:''} ${c.email?`<div class="detail-section"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${c.email}" style="color:var(--acc);text-decoration:none">✉️ ${c.email}</a></div></div>`:''}</div>${c.cerca?`<div class="detail-section"><div class="detail-label">Cerca sempre</div><div class="card-tags" style="margin-top:5px">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div></div>`:''} ${c.note?`<div class="detail-section"><div class="detail-label">Note</div><div class="detail-value" style="line-height:1.5">${c.note}</div></div>`:''} ${segsHtml}<div class="detail-actions">${c.tel?`<a href="https://wa.me/${c.tel.replace(/[^0-9]/g,'')}" target="_blank"><button class="btn-sm btn-ghost">💬 WA</button></a>`:''}<button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-contatto');openModalContatto('${c.id}')">✏️ Modifica</button><button class="btn-sm btn-danger" onclick="eliminaContatto('${c.id}')">🗑 Elimina</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-contatto')">Chiudi</button></div>`;
-  document.getElementById('modal-detail-contatto').classList.remove('hidden');
-}
-function openDetailSeg(id){
-  const s=segnalazioni.find(x=>x.id===id);if(!s)return;
-  let det=[];if(s.anno)det.push({l:'Anno',v:s.anno});if(s.ore)det.push({l:'Ore',v:Number(s.ore).toLocaleString('it-IT')});if(s.prezzo)det.push({l:'Prezzo',v:fmtE(s.prezzo)});
-  document.getElementById('detail-seg-content').innerHTML=`<div class="modal-handle"></div><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px"><div style="font-size:19px;font-weight:700;flex:1;padding-right:10px">${s.macchina}</div><span class="badge seg-tipo-${s.tipo}">${s.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} ${s.contatto||s.paese?`<div class="detail-section"><div class="detail-label">Fonte</div><div class="detail-value">${[s.contatto?'📞 '+s.contatto:'',s.paese?'📍 '+s.paese:''].filter(Boolean).join(' · ')}</div></div>`:''}<div class="detail-section"><div class="detail-label">Stato · aggiunto</div><div class="detail-value">${s.status==='aperta'?'🟡 Aperta':'⚫ Chiusa'} · ${daysAgo(s.createdAt)}</div></div>${s.note?`<div class="detail-section"><div class="detail-label">Note</div><div class="detail-value" style="line-height:1.5">${s.note}</div></div>`:''}<div class="detail-actions"><button class="btn-sm btn-ghost" onclick="toggleStatusSeg('${s.id}')">${s.status==='aperta'?'⚫ Chiudi':'🟡 Riapri'}</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-seg');openModalSegnalazione('${s.id}')">✏️ Modifica</button><button class="btn-sm btn-danger" onclick="eliminaSeg('${s.id}')">🗑 Elimina</button><button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-seg')">Chiudi</button></div>`;
-  document.getElementById('modal-detail-seg').classList.remove('hidden');
-}
-async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);closeModal('modal-detail-contatto');renderContatti();await saveData()}
-async function eliminaSeg(id){if(!confirm('Eliminare?'))return;segnalazioni=segnalazioni.filter(s=>s.id!==id);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
-async function toggleStatusSeg(id){segnalazioni=segnalazioni.map(s=>s.id===id?{...s,status:s.status==='aperta'?'chiusa':'aperta'}:s);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
-const PWD='micy2024';
+
+// ── LOGIN ────────────────────────────────────────────
 function doLogin(){
-  const v=document.getElementById('login-pw').value;
-  if(v===PWD){
+  if(document.getElementById('login-pw').value===PWD){
     sessionStorage.setItem('crm_auth','1');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('loading').style.display='flex';
     loadData();
-  }else{
+  } else {
     document.getElementById('login-err').textContent='Password errata';
     document.getElementById('login-pw').value='';
   }
@@ -374,8 +348,348 @@ function doLogin(){
 if(sessionStorage.getItem('crm_auth')==='1'){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('loading').style.display='flex';
-  loadData();
 }
+
+// ── SYNC ─────────────────────────────────────────────
+function setSync(state,text){
+  document.getElementById('sync-dot').className='sync-dot '+state;
+  document.getElementById('sync-label').textContent=text;
+}
+async function loadData(){
+  setSync('loading','Caricamento...');
+  try{
+    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY}});
+    const d=await r.json();
+    contatti=d.record.contatti||[];
+    macchine=d.record.macchine||[];
+    eventi=d.record.eventi||[];
+    setSync('ok','Sincronizzato');
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='block';
+    renderContatti();
+  }catch(e){
+    setSync('err','Errore');
+    document.getElementById('loading').innerHTML='<div class="loading-logo">◈ CRM MACCHINE</div><div style="color:var(--red);font-size:13px;margin-top:16px;text-align:center">Errore connessione.<br>Controlla internet e ricarica.</div>';
+  }
+}
+async function saveData(){
+  if(saving)return;saving=true;setSync('loading','Salvataggio...');
+  try{
+    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY},body:JSON.stringify({contatti,macchine,eventi})});
+    setSync('ok','Salvato ✓');
+  }catch(e){setSync('err','Errore salvataggio')}
+  saving=false;
+}
+
+// ── TABS ─────────────────────────────────────────────
+function switchTab(t){
+  currentTab=t;
+  const tabs=['contatti','macchine','eventi'];
+  tabs.forEach((tab,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',tab===t);
+    document.getElementById('view-'+tab).style.display=tab===t?'':'none';
+  });
+  if(t==='contatti')renderContatti();
+  else if(t==='macchine')renderMacchine();
+  else renderEventi();
+}
+
+// ── FILTERS ──────────────────────────────────────────
+function setFilterC(f,el){filterC=f;document.querySelectorAll('#view-contatti .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderContatti()}
+function setFilterM(f,el){filterM=f;document.querySelectorAll('#view-macchine .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMacchine()}
+
+// ── RENDER CONTATTI ───────────────────────────────────
+function renderContatti(){
+  // Reminder box
+  const scaduti=contatti.filter(c=>{
+    const logs=eventi.filter(e=>e.contactId===c.id);
+    const lastDate=logs.length?logs.sort((a,b)=>b.date.localeCompare(a.date))[0].date:c.createdAt;
+    return daysAgo(lastDate)>=REMIND_DAYS;
+  });
+  const rb=document.getElementById('remind-box');
+  if(scaduti.length){
+    rb.innerHTML=`<div class="remind-section"><div class="remind-title">⏰ Da risentire (${scaduti.length})</div>${scaduti.slice(0,5).map(c=>`<div class="remind-item" onclick="openDetailC('${c.id}')"><div><div class="remind-name">${c.nome} ${c.cognome||''}</div><div style="font-size:11px;color:var(--txt3)">${c.azienda||''}</div></div><span class="remind-days">${daysAgo(getLastContact(c.id))}gg</span></div>`).join('')}${scaduti.length>5?`<div style="font-size:11px;color:var(--txt3);text-align:center;margin-top:6px">+${scaduti.length-5} altri</div>`:''}</div>`;
+  } else {rb.innerHTML=''}
+
+  const q=document.getElementById('search-contatti').value.toLowerCase();
+  const list=contatti.filter(c=>{
+    const m=!q||[c.nome,c.cognome,c.azienda,c.paese,c.cerca].join(' ').toLowerCase().includes(q);
+    return m&&(filterC==='tutti'||c.tipo===filterC);
+  }).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+
+  const stats={cliente:0,fornitore:0,broker:0,misto:0};
+  contatti.forEach(c=>stats[c.tipo]=(stats[c.tipo]||0)+1);
+  document.getElementById('stats-contatti').innerHTML=`
+    <div class="stat-pill"><div class="stat-num">${contatti.length}</div><div class="stat-lbl">Totali</div></div>
+    <div class="stat-pill"><div class="stat-num">${stats.cliente||0}</div><div class="stat-lbl">Clienti</div></div>
+    <div class="stat-pill"><div class="stat-num">${stats.fornitore||0}</div><div class="stat-lbl">Fornitori</div></div>
+    <div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Broker/Misto</div></div>`;
+
+  const el=document.getElementById('list-contatti');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>${q?'Nessun risultato':'Nessun contatto ancora.'}</div>`;return}
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto'};
+  el.innerHTML=list.map(c=>{
+    const logs=eventi.filter(e=>e.contactId===c.id).sort((a,b)=>b.date.localeCompare(a.date));
+    const lastLog=logs[0];
+    const giorni=daysAgo(getLastContact(c.id));
+    const macs=macchine.filter(m=>m.contatto===(c.nome+' '+(c.cognome||'')).trim()||m.contatto===c.azienda).length;
+    return`<div class="card" onclick="openDetailC('${c.id}')">
+      <div class="card-header">
+        <div><div class="card-name">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div class="card-company">${c.azienda}</div>`:''}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span>
+          ${giorni>=REMIND_DAYS?`<span class="remind-badge">${giorni}gg</span>`:''}
+        </div>
+      </div>
+      <div class="card-meta">
+        ${c.paese?`<span class="card-meta-item">📍 ${c.paese}</span>`:''}
+        ${macs?`<span class="card-meta-item">🚜 ${macs} macchine</span>`:''}
+        ${logs.length?`<span class="card-meta-item">📋 ${logs.length} log</span>`:''}
+      </div>
+      ${c.cerca?`<div class="card-tags">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}
+      ${lastLog?`<div class="last-log"><span class="last-log-date">${fmtDate(lastLog.date)} — </span>${lastLog.testo.slice(0,80)}${lastLog.testo.length>80?'…':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function getLastContact(contactId){
+  const logs=eventi.filter(e=>e.contactId===contactId);
+  if(!logs.length)return contatti.find(c=>c.id===contactId)?.createdAt||today();
+  return logs.sort((a,b)=>b.date.localeCompare(a.date))[0].date;
+}
+
+// ── RENDER MACCHINE ───────────────────────────────────
+function renderMacchine(){
+  const dl=document.getElementById('dl-contatti');
+  if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  const q=document.getElementById('search-macchine').value.toLowerCase();
+  const list=macchine.filter(m=>{
+    const match=!q||[m.macchina,m.contatto,m.paese,m.note].join(' ').toLowerCase().includes(q);
+    return match&&(filterM==='tutti'||m.tipo===filterM||m.status===filterM);
+  }).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const aperte=macchine.filter(m=>m.status==='aperta').length;
+  const offerte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').length;
+  const richieste=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').length;
+  document.getElementById('stats-macchine').innerHTML=`
+    <div class="stat-pill"><div class="stat-num">${macchine.length}</div><div class="stat-lbl">Totali</div></div>
+    <div class="stat-pill"><div class="stat-num">${aperte}</div><div class="stat-lbl">Aperte</div></div>
+    <div class="stat-pill"><div class="stat-num">${offerte}</div><div class="stat-lbl">Offerte</div></div>
+    <div class="stat-pill"><div class="stat-num">${richieste}</div><div class="stat-lbl">Richieste</div></div>`;
+  const el=document.getElementById('list-macchine');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🚜</div>${q?'Nessun risultato':'Nessuna macchina ancora.'}</div>`;return}
+  el.innerHTML=list.map(m=>{
+    const col=m.status==='chiusa'?'var(--txt3)':(m.tipo==='offerta'?'var(--red)':'var(--blue)');
+    let det=[];if(m.anno)det.push(m.anno);if(m.ore)det.push(Number(m.ore).toLocaleString('it-IT')+' ore');if(m.prezzo)det.push(fmtE(m.prezzo));
+    return`<div class="seg-card" onclick="openDetailM('${m.id}')">
+      <div class="seg-bar" style="background:${col}"></div>
+      <div class="card-header"><div class="seg-macchina">${m.macchina}</div><span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>
+      ${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}
+      <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}${m.paese?`<span class="card-meta-item">📍 ${m.paese}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span></div>
+      ${m.note?`<div class="seg-note">${m.note.slice(0,100)}${m.note.length>100?'…':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER EVENTI ─────────────────────────────────────
+function renderEventi(){
+  const q=document.getElementById('search-eventi').value.toLowerCase();
+  const list=eventi.filter(e=>!q||[e.testo,e.contactName].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('list-eventi');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>${q?'Nessun risultato':'Nessun log ancora.<br>Apri un contatto e aggiungi un aggiornamento.'}</div>`;return}
+  el.innerHTML=`<div class="events-feed">${list.map((e,i)=>`
+    <div class="event-item">
+      <div class="event-line"><div class="event-dot"></div>${i<list.length-1?'<div class="event-tail"></div>':''}</div>
+      <div class="event-body">
+        <div class="event-contact" onclick="openDetailC('${e.contactId}')">${e.contactName}</div>
+        <div class="event-text">${e.testo}</div>
+        <div class="event-date">${fmtDate(e.date)}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ── MODALS ────────────────────────────────────────────
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+document.querySelectorAll('.modal-overlay').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden')})});
+
+function openModalContatto(id){
+  editCId=id||null;const c=id?contatti.find(x=>x.id===id):null;
+  document.getElementById('mc-title').textContent=id?'Modifica Contatto':'Nuovo Contatto';
+  document.getElementById('c-nome').value=c?.nome||'';
+  document.getElementById('c-cognome').value=c?.cognome||'';
+  document.getElementById('c-azienda').value=c?.azienda||'';
+  document.getElementById('c-tipo').value=c?.tipo||'cliente';
+  document.getElementById('c-paese').value=c?.paese||'';
+  document.getElementById('c-cerca').value=c?.cerca||'';
+  document.getElementById('modal-contatto').classList.remove('hidden');
+}
+
+function openModalMacchina(id){
+  editMId=id||null;const m=id?macchine.find(x=>x.id===id):null;
+  document.getElementById('mm-title').textContent=id?'Modifica':'Macchina sentita in giro';
+  document.getElementById('m-tipo').value=m?.tipo||'offerta';
+  document.getElementById('m-status').value=m?.status||'aperta';
+  document.getElementById('m-macchina').value=m?.macchina||'';
+  document.getElementById('m-anno').value=m?.anno||'';
+  document.getElementById('m-ore').value=m?.ore||'';
+  document.getElementById('m-prezzo').value=m?.prezzo||'';
+  document.getElementById('m-paese').value=m?.paese||'';
+  document.getElementById('m-contatto').value=m?.contatto||'';
+  document.getElementById('m-note').value=m?.note||'';
+  document.getElementById('dl-contatti').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  document.getElementById('modal-macchina').classList.remove('hidden');
+}
+
+function openModalLog(contactId){
+  logContactId=contactId;
+  const c=contatti.find(x=>x.id===contactId);
+  document.getElementById('log-contact-info').textContent='📞 '+(c?`${c.nome} ${c.cognome||''} ${c.azienda?'— '+c.azienda:''}`:'');
+  document.getElementById('log-testo').value='';
+  document.getElementById('modal-log').classList.remove('hidden');
+}
+
+// ── SALVA ─────────────────────────────────────────────
+async function salvaContatto(){
+  const nome=document.getElementById('c-nome').value.trim();
+  if(!nome){alert('Nome obbligatorio');return}
+  const obj={id:editCId||uid(),nome,cognome:document.getElementById('c-cognome').value.trim(),azienda:document.getElementById('c-azienda').value.trim(),tipo:document.getElementById('c-tipo').value,paese:document.getElementById('c-paese').value.trim(),cerca:document.getElementById('c-cerca').value.trim(),createdAt:editCId?(contatti.find(c=>c.id===editCId)?.createdAt||today()):today()};
+  contatti=editCId?contatti.map(c=>c.id===editCId?obj:c):[obj,...contatti];
+  closeModal('modal-contatto');closeModal('modal-detail-c');renderContatti();await saveData();
+}
+
+async function salvaMacchina(){
+  const macchina=document.getElementById('m-macchina').value.trim();
+  if(!macchina){alert('Macchina obbligatoria');return}
+  const obj={id:editMId||uid(),tipo:document.getElementById('m-tipo').value,status:document.getElementById('m-status').value,macchina,anno:document.getElementById('m-anno').value,ore:document.getElementById('m-ore').value,prezzo:document.getElementById('m-prezzo').value,paese:document.getElementById('m-paese').value.trim(),contatto:document.getElementById('m-contatto').value.trim(),note:document.getElementById('m-note').value.trim(),createdAt:editMId?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()};
+  macchine=editMId?macchine.map(m=>m.id===editMId?obj:m):[obj,...macchine];
+  closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();await saveData();
+}
+
+async function salvaLog(){
+  const testo=document.getElementById('log-testo').value.trim();
+  if(!testo){alert('Scrivi qualcosa');return}
+  const c=contatti.find(x=>x.id===logContactId);
+  const evento={id:uid(),contactId:logContactId,contactName:c?`${c.nome} ${c.cognome||''} ${c.azienda?'('+c.azienda+')':''}`.trim():'',testo,date:new Date().toISOString()};
+  eventi=[evento,...eventi];
+  closeModal('modal-log');
+  // refresh detail if open
+  if(!document.getElementById('modal-detail-c').classList.contains('hidden'))openDetailC(logContactId);
+  renderEventi();
+  await saveData();
+}
+
+// ── DETAIL CONTATTO ───────────────────────────────────
+function openDetailC(id){
+  const c=contatti.find(x=>x.id===id);if(!c)return;
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto'};
+  const logs=eventi.filter(e=>e.contactId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  const macs=macchine.filter(m=>m.contatto===(c.nome+' '+(c.cognome||'')).trim()||m.contatto===c.azienda);
+  const giorni=daysAgo(getLastContact(id));
+
+  let logsHtml=logs.length?`<div class="events-feed" style="margin-top:8px">${logs.map((e,i)=>`
+    <div class="event-item">
+      <div class="event-line"><div class="event-dot"></div>${i<logs.length-1?'<div class="event-tail"></div>':''}</div>
+      <div class="event-body">
+        <div class="event-text">${e.testo}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:3px">
+          <div class="event-date">${fmtDate(e.date)}</div>
+          <button style="background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer" onclick="eliminaLog('${e.id}','${id}')">✕</button>
+        </div>
+      </div>
+    </div>`).join('')}</div>`:'<div style="font-size:13px;color:var(--txt3);padding:12px 0">Nessun log ancora.</div>';
+
+  let macsHtml=macs.length?macs.map(m=>`<div style="background:var(--sur2);border-radius:7px;padding:8px 10px;margin-bottom:6px;font-size:13px"><span class="badge seg-tipo-${m.tipo}" style="font-size:10px">${m.tipo==='offerta'?'Offerta':'Richiesta'}</span> <strong style="margin-left:5px">${m.macchina}</strong>${m.anno||m.ore||m.prezzo?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--acc2);margin-top:3px">${[m.anno,m.ore?m.ore+' ore':'',fmtE(m.prezzo)].filter(Boolean).join(' · ')}</div>`:''}</div>`).join(''):'';
+
+  document.getElementById('detail-c-content').innerHTML=`
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div><div style="font-size:19px;font-weight:700">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div style="color:var(--txt2);font-size:13px;margin-top:2px">${c.azienda}</div>`:''}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span class="badge badge-${c.tipo}">${TL[c.tipo]||c.tipo}</span>
+        ${giorni>=REMIND_DAYS?`<span class="remind-badge">⏰ ${giorni}gg fa</span>`:''}
+      </div>
+    </div>
+    ${c.paese?`<div class="detail-label">Paese</div><div class="detail-value">📍 ${c.paese}</div>`:''}
+    ${c.cerca?`<div class="detail-label">Cerca sempre</div><div class="card-tags" style="margin-bottom:14px">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}
+    ${matchHtmlMacchine(findMatchingMacchine(c))}
+    ${macsHtml?`<div class="section-title">Macchine collegate (${macs.length})</div>${macsHtml}`:''}
+    <div class="section-title">Log aggiornamenti (${logs.length})</div>
+    <button class="log-add-btn" onclick="openModalLog('${id}')">+ Aggiungi aggiornamento</button>
+    ${logsHtml}
+    <div class="detail-actions" style="margin-top:20px">
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-c');openModalContatto('${c.id}')">✏️ Modifica</button>
+      <button class="btn-sm btn-danger" onclick="eliminaContatto('${c.id}')">🗑 Elimina</button>
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-c')">Chiudi</button>
+    </div>`;
+  document.getElementById('modal-detail-c').classList.remove('hidden');
+}
+
+// ── DETAIL MACCHINA ───────────────────────────────────
+function openDetailM(id){
+  const m=macchine.find(x=>x.id===id);if(!m)return;
+  let det=[];if(m.anno)det.push({l:'Anno',v:m.anno});if(m.ore)det.push({l:'Ore',v:Number(m.ore).toLocaleString('it-IT')});if(m.prezzo)det.push({l:'Prezzo',v:fmtE(m.prezzo)});
+  document.getElementById('detail-m-content').innerHTML=`
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div style="font-size:19px;font-weight:700;flex:1;padding-right:10px">${m.macchina}</div>
+      <span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span>
+    </div>
+    ${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} 
+    ${m.contatto||m.paese?`<div class="detail-label">Fonte</div><div class="detail-value">${[m.contatto?'📞 '+m.contatto:'',m.paese?'📍 '+m.paese:''].filter(Boolean).join(' · ')}</div>`:''}
+    <div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Chiusa'} · ${fmtDate(m.createdAt)}</div>
+    ${m.note?`<div class="detail-label">Note</div><div class="detail-value">${m.note}</div>`:''}
+    ${m.tipo==='offerta'&&m.status==='aperta'?matchHtmlContatti(findMatchingContatti(m),m.id):''}
+    <div class="detail-actions">
+      <button class="btn-sm btn-ghost" onclick="toggleM('${m.id}')">${m.status==='aperta'?'⚫ Chiudi':'🟡 Riapri'}</button>
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-m');openModalMacchina('${m.id}')">✏️ Modifica</button>
+      <button class="btn-sm btn-danger" onclick="eliminaM('${m.id}')">🗑 Elimina</button>
+      <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-m')">Chiudi</button>
+    </div>`;
+  document.getElementById('modal-detail-m').classList.remove('hidden');
+}
+
+// ── MATCH ─────────────────────────────────────────────
+function getMatchScore(keywords, text){
+  if(!keywords||!text)return 0;
+  const kws=keywords.toLowerCase().split(/[,\s]+/).filter(k=>k.length>2);
+  const t=text.toLowerCase();
+  return kws.filter(k=>t.includes(k)).length;
+}
+
+function findMatchingContatti(macchina){
+  // Per una macchina offerta: trova contatti che la cercano
+  return contatti.map(c=>{
+    const score=getMatchScore(c.cerca, macchina.macchina);
+    return{...c,score};
+  }).filter(c=>c.score>0).sort((a,b)=>b.score-a.score);
+}
+
+function findMatchingMacchine(contatto){
+  // Per un contatto: trova macchine offerte aperte che matchano con quello che cerca
+  return macchine.filter(m=>m.status==='aperta'&&m.tipo==='offerta').map(m=>{
+    const score=getMatchScore(contatto.cerca, m.macchina);
+    return{...m,score};
+  }).filter(m=>m.score>0).sort((a,b)=>b.score-a.score);
+}
+
+function matchHtmlContatti(matches, macchinaId){
+  if(!matches.length)return'';
+  return`<div class="match-box"><div class="match-title">🎯 Chi potrebbe essere interessato (${matches.length})</div>${matches.map(c=>`<div class="match-item" onclick="closeModal('modal-detail-m');openDetailC('${c.id}')"><div><div class="match-name">${c.nome} ${c.cognome||''}</div><div class="match-sub">${c.azienda||''} ${c.paese?'· '+c.paese:''}</div></div><div class="match-kw">${c.cerca.split(',').slice(0,2).map(k=>k.trim()).join(', ')}</div></div>`).join('')}</div>`;
+}
+
+function matchHtmlMacchine(matches){
+  if(!matches.length)return'';
+  return`<div class="match-box"><div class="match-title">🎯 Macchine disponibili che potrebbero interessargli (${matches.length})</div>${matches.map(m=>`<div class="match-item" onclick="closeModal('modal-detail-c');openDetailM('${m.id}')"><div><div class="match-name">${m.macchina}</div><div class="match-sub">${[m.anno,m.ore?m.ore+' ore':'',fmtE(m.prezzo)].filter(Boolean).join(' · ')}</div></div><span class="badge seg-tipo-offerta" style="font-size:10px">Offerta</span></div>`).join('')}</div>`;
+}
+
+// ── ELIMINA ───────────────────────────────────────────
+async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
+async function eliminaM(id){if(!confirm('Eliminare?'))return;macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
+async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
+async function toggleM(id){macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
+
+// ── INIT ──────────────────────────────────────────────
+if(sessionStorage.getItem('crm_auth')==='1')loadData();
 </script>
 </body>
 </html>
