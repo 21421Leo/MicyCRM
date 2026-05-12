@@ -83,6 +83,14 @@ textarea.form-input{resize:vertical;min-height:70px}
 .detail-label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 .detail-value{font-size:14px;color:var(--txt)}
 .detail-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:24px}
+.login-box{width:100%;max-width:320px}
+.login-logo{font-family:'DM Mono',monospace;font-size:16px;color:var(--acc);letter-spacing:.1em;text-align:center;margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--txt3);text-align:center;margin-bottom:32px}
+.login-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:14px 12px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:16px;outline:none;text-align:center;letter-spacing:.1em;margin-bottom:12px}
+.login-input:focus{border-color:var(--acc)}
+.login-btn{width:100%;background:var(--acc);color:#000;border:none;border-radius:9px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer}
+.login-err{font-size:12px;color:var(--red);text-align:center;margin-top:10px;min-height:18px}
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
 .loading-logo{font-family:'DM Mono',monospace;font-size:16px;color:var(--acc);margin-bottom:16px;letter-spacing:.1em}
 .loading-spinner{width:32px;height:32px;border:2px solid var(--bor);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite}
@@ -92,7 +100,17 @@ textarea.form-input{resize:vertical;min-height:70px}
 </head>
 <body>
 
-<div class="loading-screen" id="loading">
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">◈ CRM MACCHINE</div>
+    <div class="login-sub">MICY S.R.O.</div>
+    <input class="login-input" type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entra</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<div class="loading-screen" id="loading" style="display:none">
   <div class="loading-logo">◈ CRM MACCHINE</div>
   <div class="loading-spinner"></div>
   <div class="loading-text">Caricamento dati...</div>
@@ -340,7 +358,24 @@ function openDetailSeg(id){
 async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);closeModal('modal-detail-contatto');renderContatti();await saveData()}
 async function eliminaSeg(id){if(!confirm('Eliminare?'))return;segnalazioni=segnalazioni.filter(s=>s.id!==id);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
 async function toggleStatusSeg(id){segnalazioni=segnalazioni.map(s=>s.id===id?{...s,status:s.status==='aperta'?'chiusa':'aperta'}:s);closeModal('modal-detail-seg');renderSegnalazioni();await saveData()}
-loadData();
+const PWD='micy2024';
+function doLogin(){
+  const v=document.getElementById('login-pw').value;
+  if(v===PWD){
+    sessionStorage.setItem('crm_auth','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('loading').style.display='flex';
+    loadData();
+  }else{
+    document.getElementById('login-err').textContent='Password errata';
+    document.getElementById('login-pw').value='';
+  }
+}
+if(sessionStorage.getItem('crm_auth')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('loading').style.display='flex';
+  loadData();
+}
 </script>
 </body>
 </html>
