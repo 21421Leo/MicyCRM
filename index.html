@@ -415,7 +415,7 @@ function renderContatti(){
   const list=contatti.filter(c=>{
     const m=!q||[c.nome,c.cognome,c.azienda,c.paese,c.cerca].join(' ').toLowerCase().includes(q);
     return m&&(filterC==='tutti'||c.tipo===filterC);
-  }).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  }).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','it'));
 
   const stats={cliente:0,fornitore:0,broker:0,misto:0};
   contatti.forEach(c=>stats[c.tipo]=(stats[c.tipo]||0)+1);
@@ -448,6 +448,10 @@ function renderContatti(){
       </div>
       ${c.cerca?`<div class="card-tags">${c.cerca.split(',').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>`:''}
       ${lastLog?`<div class="last-log"><span class="last-log-date">${fmtDate(lastLog.date)} — </span>${lastLog.testo.slice(0,80)}${lastLog.testo.length>80?'…':''}</div>`:''}
+      <div style="display:flex;gap:8px;margin-top:10px" onclick="event.stopPropagation()">
+        <button onclick="openModalLog('${c.id}')" style="flex:2;background:var(--acc);color:#000;border:none;border-radius:7px;padding:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">+ Log</button>
+        <button onclick="openModalContatto('${c.id}')" style="flex:1;background:var(--sur2);color:var(--txt2);border:none;border-radius:7px;padding:9px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">✏️ Modifica</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -466,7 +470,7 @@ function renderMacchine(){
   const list=macchine.filter(m=>{
     const match=!q||[m.macchina,m.contatto,m.paese,m.note].join(' ').toLowerCase().includes(q);
     return match&&(filterM==='tutti'||m.tipo===filterM||m.status===filterM);
-  }).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  }).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','it'));
   const aperte=macchine.filter(m=>m.status==='aperta').length;
   const offerte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').length;
   const richieste=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').length;
