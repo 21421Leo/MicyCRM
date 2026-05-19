@@ -211,10 +211,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
     <div id="view-contatti">
       <div id="remind-box"></div>
       <div id="stats-contatti" class="stats-bar"></div>
-      <div class="search-bar">
-        <input type="text" id="search-contatti" placeholder="Cerca nome, azienda, paese..." oninput="renderContatti()">
-        <button class="btn-add" onclick="openModalContatto()">+ Nuovo</button>
-      </div>
+      <button class="btn-add" style="width:100%;margin-bottom:14px;padding:13px;font-size:15px;border-radius:var(--rad)" onclick="openModalContatto()">+ Nuovo contatto</button>
       <div class="chips">
         <button class="chip active" onclick="setFilterC('tutti',this)">Tutti</button>
         <button class="chip" onclick="setFilterC('cliente',this)">Clienti</button>
@@ -227,10 +224,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
     <!-- TAB MACCHINE -->
     <div id="view-macchine" style="display:none">
       <div id="stats-macchine" class="stats-bar"></div>
-      <div class="search-bar">
-        <input type="text" id="search-macchine" placeholder="Cerca macchina, marca..." oninput="renderMacchine()">
-        <button class="btn-add" onclick="openModalMacchina()">+ Nuova</button>
-      </div>
+      <button class="btn-add" style="width:100%;margin-bottom:14px;padding:13px;font-size:15px;border-radius:var(--rad)" onclick="openModalMacchina()">+ Nuova macchina</button>
       <div class="chips">
         <button class="chip active" onclick="setFilterM('tutti',this)">Tutte</button>
         <button class="chip" onclick="setFilterM('aperta',this)">Aperte</button>
@@ -243,9 +237,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 
     <!-- TAB EVENTI -->
     <div id="view-eventi" style="display:none">
-      <div class="search-bar">
-        <input type="text" id="search-eventi" placeholder="Cerca nei log..." oninput="renderEventi()">
-      </div>
+
       <div id="list-eventi"></div>
     </div>
 
@@ -435,7 +427,7 @@ function renderContatti(){
     rb.innerHTML=`<div class="remind-section"><div class="remind-title">⏰ Da risentire (${scaduti.length})</div>${scaduti.slice(0,5).map(c=>`<div class="remind-item" onclick="openDetailC('${c.id}')"><div><div class="remind-name">${c.nome} ${c.cognome||''}</div><div style="font-size:11px;color:var(--txt3)">${c.azienda||''}</div></div><span class="remind-days">${daysAgo(getLastContact(c.id))}gg</span></div>`).join('')}${scaduti.length>5?`<div style="font-size:11px;color:var(--txt3);text-align:center;margin-top:6px">+${scaduti.length-5} altri</div>`:''}</div>`;
   } else {rb.innerHTML=''}
 
-  const q=document.getElementById('search-contatti').value.toLowerCase();
+  const q='';
   const list=contatti.filter(c=>{
     const m=!q||[c.nome,c.cognome,c.azienda,c.paese,c.cerca].join(' ').toLowerCase().includes(q);
     return m&&(filterC==='tutti'||c.tipo===filterC);
@@ -490,7 +482,7 @@ function getLastContact(contactId){
 function renderMacchine(){
   const dl=document.getElementById('dl-contatti');
   if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
-  const q=document.getElementById('search-macchine').value.toLowerCase();
+  const q='';
   const list=macchine.filter(m=>{
     const match=!q||[m.macchina,m.contatto,m.paese,m.note].join(' ').toLowerCase().includes(q);
     return match&&(filterM==='tutti'||m.tipo===filterM||m.status===filterM);
@@ -520,7 +512,7 @@ function renderMacchine(){
 
 // ── RENDER EVENTI ─────────────────────────────────────
 function renderEventi(){
-  const q=document.getElementById('search-eventi').value.toLowerCase();
+  const q='';
   const list=eventi.filter(e=>!q||[e.testo,e.contactName].join(' ').toLowerCase().includes(q))
     .sort((a,b)=>b.date.localeCompare(a.date));
   const el=document.getElementById('list-eventi');
