@@ -66,7 +66,7 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
 .badge-cliente{background:rgba(91,155,213,.15);color:var(--blue)}
 .badge-fornitore{background:rgba(212,168,67,.12);color:var(--acc)}
-.badge-broker{background:rgba(92,184,92,.12);color:var(--green)}
+.badge-misto{background:rgba(92,184,92,.12);color:var(--green)}
 .badge-misto{background:rgba(224,85,85,.12);color:var(--red)}
 .card-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
 .card-meta-item{font-size:11px;color:var(--txt3)}
@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-
 .event-dot{width:8px;height:8px;border-radius:50%;background:var(--acc);flex-shrink:0;margin-top:4px}
 .event-tail{flex:1;width:1px;background:var(--bor);margin-top:4px}
 .event-body{flex:1}
-.event-contact{font-size:11px;color:var(--acc);font-weight:600;margin-bottom:2px}
+.event-contact{font-size:14px;color:var(--acc);font-weight:600;margin-bottom:2px}
 .event-text{font-size:14px;color:var(--txt);line-height:1.5}
 .event-date{font-size:10px;color:var(--txt3);font-family:'DM Mono',monospace;margin-top:3px}
 /* REMINDER SECTION */
@@ -138,11 +138,28 @@ textarea.form-input{resize:vertical;min-height:80px}
 .match-sub{font-size:11px;color:var(--txt3);margin-top:1px}
 .match-kw{font-size:10px;color:var(--acc2);font-family:'DM Mono',monospace}
 
-/* VOICE */
-.voice-btn{position:fixed;bottom:28px;right:20px;width:62px;height:62px;border-radius:50%;background:var(--acc);color:#000;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(212,168,67,.45);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s}
-.voice-btn:active{transform:scale(.93)}
-.voice-btn.recording{background:var(--red);box-shadow:0 4px 24px rgba(224,85,85,.5);animation:pulse-red 1s infinite}
-@keyframes pulse-red{0%,100%{box-shadow:0 4px 24px rgba(224,85,85,.5)}50%{box-shadow:0 4px 32px rgba(224,85,85,.8)}}
+50%{box-shadow:0 4px 32px rgba(224,85,85,.8)}}
+
+/* GLOBAL SEARCH */
+.global-search-wrap{padding:10px 16px 0;background:var(--sur)}
+.global-search-input{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:var(--rad);padding:10px 14px 10px 36px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23555' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+.global-search-input:focus{border-color:var(--acc)}
+.global-search-input::placeholder{color:var(--txt3)}
+/* GLOBAL RESULTS */
+.gsr-overlay{position:fixed;inset:0;background:var(--bg);z-index:150;overflow-y:auto;padding:0 0 40px}
+.gsr-overlay.hidden{display:none}
+.gsr-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--bor);position:sticky;top:0;background:var(--bg);z-index:10}
+.gsr-back{background:var(--sur2);border:none;color:var(--txt2);border-radius:7px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.gsr-query{font-size:13px;color:var(--txt2)}
+.gsr-section{padding:16px 16px 0}
+.gsr-section-title{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.gsr-item{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.gsr-item:active{border-color:var(--acc)}
+.gsr-item-name{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.gsr-item-sub{font-size:12px;color:var(--txt2)}
+.gsr-item-snippet{font-size:12px;color:var(--txt3);margin-top:4px;line-height:1.4}
+.gsr-empty{font-size:13px;color:var(--txt3);text-align:center;padding:40px 20px}
+mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:0 1px}
 </style>
 </head>
 <body>
@@ -178,6 +195,9 @@ textarea.form-input{resize:vertical;min-height:80px}
         <span class="sync-label" id="sync-label">...</span>
       </div>
     </div>
+    <div class="global-search-wrap">
+      <input class="global-search-input" id="global-search" placeholder="Cerca tutto — contatti, macchine, log..." oninput="onGlobalSearch(this.value)" onfocus="if(this.value.trim())showGlobalResults(this.value)">
+    </div>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('contatti')">👤 Rubrica</button>
       <button class="tab" onclick="switchTab('macchine')">🚜 Macchine</button>
@@ -199,8 +219,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <button class="chip active" onclick="setFilterC('tutti',this)">Tutti</button>
         <button class="chip" onclick="setFilterC('cliente',this)">Clienti</button>
         <button class="chip" onclick="setFilterC('fornitore',this)">Fornitori</button>
-        <button class="chip" onclick="setFilterC('broker',this)">Broker</button>
-        <button class="chip" onclick="setFilterC('misto',this)">Misto</button>
+        <button class="chip" onclick="setFilterC('misto',this)">Commercianti</button>
       </div>
       <div id="list-contatti"></div>
     </div>
@@ -248,8 +267,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <select class="form-input" id="c-tipo">
           <option value="cliente">Cliente</option>
           <option value="fornitore">Fornitore</option>
-          <option value="broker">Broker</option>
-          <option value="misto">Misto</option>
+          <option value="misto">Commerciante</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="c-paese" placeholder="Italia"></div>
@@ -288,7 +306,6 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="m-prezzo" type="number" placeholder="95000"></div>
-      <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="m-paese" placeholder="Germania"></div>
     </div>
     <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
     <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="m-note" placeholder="Condizioni, dettagli, attrezzature..."></textarea></div>
@@ -299,62 +316,6 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
-
-<!-- VOICE MODAL -->
-<div class="modal-overlay hidden" id="modal-voice">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🎙️ Cosa vuoi salvare?</div>
-    <div id="voice-status" style="font-size:13px;color:var(--txt3);margin-bottom:12px;min-height:18px"></div>
-    <textarea class="form-input" id="voice-text" placeholder="Parla oppure scrivi qui..." style="min-height:90px;margin-bottom:14px"></textarea>
-    <button class="btn-primary" id="voice-send-btn" onclick="processVoiceText()" style="margin-bottom:10px">Analizza con AI ✨</button>
-
-    <!-- RESULT MACCHINA -->
-    <div id="voice-result-macchina" style="display:none">
-      <div style="font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;font-weight:600">🚜 Macchina rilevata</div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Tipo</label>
-          <select class="form-input" id="vr-m-tipo"><option value="offerta">Offerta</option><option value="richiesta">Richiesta</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Stato</label>
-          <select class="form-input" id="vr-m-status"><option value="aperta">Aperta</option><option value="chiusa">Chiusa</option></select>
-        </div>
-      </div>
-      <div class="form-group"><label class="form-label">Macchina</label><input class="form-input" id="vr-m-macchina"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Anno</label><input class="form-input" id="vr-m-anno" type="number"></div>
-        <div class="form-group"><label class="form-label">Ore</label><input class="form-input" id="vr-m-ore" type="number"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="vr-m-prezzo" type="number"></div>
-        <div class="form-group"><label class="form-label">Paese</label><input class="form-input" id="vr-m-paese"></div>
-      </div>
-      <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="vr-m-contatto" list="dl-contatti"></div>
-      <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="vr-m-note" style="min-height:60px"></textarea></div>
-      <div class="form-actions">
-        <button class="btn-secondary" onclick="closeModal('modal-voice')">Annulla</button>
-        <button class="btn-primary" onclick="saveVoiceMacchina()">Salva macchina</button>
-      </div>
-    </div>
-
-    <!-- RESULT LOG -->
-    <div id="voice-result-log" style="display:none">
-      <div style="font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;font-weight:600">📋 Log contatto rilevato</div>
-      <div class="form-group"><label class="form-label">Contatto</label>
-        <select class="form-input" id="vr-l-contatto">
-          <option value="">-- seleziona --</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Testo log</label><textarea class="form-input" id="vr-l-testo" style="min-height:90px"></textarea></div>
-      <div class="form-actions">
-        <button class="btn-secondary" onclick="closeModal('modal-voice')">Annulla</button>
-        <button class="btn-primary" onclick="saveVoiceLog()">Salva log</button>
-      </div>
-    </div>
-
-    <div id="voice-result-error" style="display:none;font-size:13px;color:var(--red);margin-top:8px"></div>
-  </div>
-</div>
 
 <!-- MODAL AGGIUNGI LOG -->
 <div class="modal-overlay hidden" id="modal-log">
@@ -423,7 +384,7 @@ async function loadData(){
   try{
     const r=await fetch(API+'/latest',{headers:{'X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY}});
     const d=await r.json();
-    contatti=d.record.contatti||[];
+    contatti=(d.record.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
     macchine=d.record.macchine||[];
     eventi=d.record.eventi||[];
     setSync('ok','Sincronizzato');
@@ -486,11 +447,11 @@ function renderContatti(){
     <div class="stat-pill"><div class="stat-num">${contatti.length}</div><div class="stat-lbl">Totali</div></div>
     <div class="stat-pill"><div class="stat-num">${stats.cliente||0}</div><div class="stat-lbl">Clienti</div></div>
     <div class="stat-pill"><div class="stat-num">${stats.fornitore||0}</div><div class="stat-lbl">Fornitori</div></div>
-    <div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Broker/Misto</div></div>`;
+    <div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Commercianti</div></div>`;
 
   const el=document.getElementById('list-contatti');
   if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>${q?'Nessun risultato':'Nessun contatto ancora.'}</div>`;return}
-  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto'};
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
   el.innerHTML=list.map(c=>{
     const logs=eventi.filter(e=>e.contactId===c.id).sort((a,b)=>b.date.localeCompare(a.date));
     const lastLog=logs[0];
@@ -551,7 +512,7 @@ function renderMacchine(){
       <div class="seg-bar" style="background:${col}"></div>
       <div class="card-header"><div class="seg-macchina">${m.macchina}</div><span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>
       ${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}
-      <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}${m.paese?`<span class="card-meta-item">📍 ${m.paese}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span></div>
+      <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span></div>
       ${m.note?`<div class="seg-note">${m.note.slice(0,100)}${m.note.length>100?'…':''}</div>`:''}
     </div>`;
   }).join('');
@@ -564,15 +525,36 @@ function renderEventi(){
     .sort((a,b)=>b.date.localeCompare(a.date));
   const el=document.getElementById('list-eventi');
   if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>${q?'Nessun risultato':'Nessun log ancora.<br>Apri un contatto e aggiungi un aggiornamento.'}</div>`;return}
-  el.innerHTML=`<div class="events-feed">${list.map((e,i)=>`
+  
+  // Group by month
+  const groups={};
+  list.forEach(e=>{
+    const d=new Date(e.date);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const label=d.toLocaleDateString('it-IT',{month:'long',year:'numeric'}).replace(/^./,s=>s.toUpperCase());
+    if(!groups[key])groups[key]={label,items:[]};
+    groups[key].items.push(e);
+  });
+  
+  const html=Object.entries(groups).sort((a,b)=>b[0].localeCompare(a[0])).map(([key,group])=>{
+    const items=group.items.map((e,i)=>`
     <div class="event-item">
-      <div class="event-line"><div class="event-dot"></div>${i<list.length-1?'<div class="event-tail"></div>':''}</div>
+      <div class="event-line"><div class="event-dot"></div>${i<group.items.length-1?'<div class="event-tail"></div>':''}</div>
       <div class="event-body">
-        <div class="event-contact" onclick="openDetailC('${e.contactId}')">${e.contactName}</div>
+        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px">
+          <div class="event-contact" onclick="openDetailC('${e.contactId}')" style="font-size:14px">${e.contactName}</div>
+          <div class="event-date" style="margin-top:0">${fmtDate(e.date)}</div>
+        </div>
         <div class="event-text">${e.testo}</div>
-        <div class="event-date">${fmtDate(e.date)}</div>
       </div>
-    </div>`).join('')}</div>`;
+    </div>`).join('');
+    return`<div style="margin-bottom:28px">
+      <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--bor)">${group.label}</div>
+      <div class="events-feed">${items}</div>
+    </div>`;
+  }).join('');
+  
+  el.innerHTML=html;
 }
 
 // ── MODALS ────────────────────────────────────────────
@@ -627,7 +609,7 @@ async function salvaContatto(){
 async function salvaMacchina(){
   const macchina=document.getElementById('m-macchina').value.trim();
   if(!macchina){alert('Macchina obbligatoria');return}
-  const obj={id:editMId||uid(),tipo:document.getElementById('m-tipo').value,status:document.getElementById('m-status').value,macchina,anno:document.getElementById('m-anno').value,ore:document.getElementById('m-ore').value,prezzo:document.getElementById('m-prezzo').value,paese:document.getElementById('m-paese').value.trim(),contatto:document.getElementById('m-contatto').value.trim(),note:document.getElementById('m-note').value.trim(),createdAt:editMId?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()};
+  const obj={id:editMId||uid(),tipo:document.getElementById('m-tipo').value,status:document.getElementById('m-status').value,macchina,anno:document.getElementById('m-anno').value,ore:document.getElementById('m-ore').value,prezzo:document.getElementById('m-prezzo').value,paese:'',contatto:document.getElementById('m-contatto').value.trim(),note:document.getElementById('m-note').value.trim(),createdAt:editMId?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()};
   macchine=editMId?macchine.map(m=>m.id===editMId?obj:m):[obj,...macchine];
   closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();await saveData();
 }
@@ -648,7 +630,7 @@ async function salvaLog(){
 // ── DETAIL CONTATTO ───────────────────────────────────
 function openDetailC(id){
   const c=contatti.find(x=>x.id===id);if(!c)return;
-  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Broker',misto:'Misto'};
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
   const logs=eventi.filter(e=>e.contactId===id).sort((a,b)=>b.date.localeCompare(a.date));
   const macs=macchine.filter(m=>m.contatto===(c.nome+' '+(c.cognome||'')).trim()||m.contatto===c.azienda);
   const giorni=daysAgo(getLastContact(id));
@@ -702,12 +684,12 @@ function openDetailM(id){
       <span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span>
     </div>
     ${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} 
-    ${m.contatto||m.paese?`<div class="detail-label">Fonte</div><div class="detail-value">${[m.contatto?'📞 '+m.contatto:'',m.paese?'📍 '+m.paese:''].filter(Boolean).join(' · ')}</div>`:''}
+    ${m.contatto||m.paese?`<div class="detail-label">Fonte</div><div class="detail-value">${m.contatto?'📞 '+m.contatto:''}</div>`:''}
     <div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Chiusa'} · ${fmtDate(m.createdAt)}</div>
     ${m.note?`<div class="detail-label">Note</div><div class="detail-value">${m.note}</div>`:''}
     ${m.tipo==='offerta'&&m.status==='aperta'?matchHtmlContatti(findMatchingContatti(m),m.id):''}
     <div class="detail-actions">
-      <button class="btn-sm btn-ghost" onclick="toggleM('${m.id}')">${m.status==='aperta'?'⚫ Chiudi':'🟡 Riapri'}</button>
+      <button class="btn-sm btn-ghost" onclick="toggleM('${m.id}')">${m.status==='aperta'?'📦 Archivia':'🟡 Riapri'}</button>
       <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-m');openModalMacchina('${m.id}')">✏️ Modifica</button>
       <button class="btn-sm btn-danger" onclick="eliminaM('${m.id}')">🗑 Elimina</button>
       <button class="btn-sm btn-ghost" onclick="closeModal('modal-detail-m')">Chiudi</button>
@@ -756,182 +738,95 @@ async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))
 async function toggleM(id){macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
 
 
-// ── VOICE ─────────────────────────────────────────────
-let mediaRecorder=null, audioChunks=[], isRecording=false;
 
-function openVoiceModal(){
-  document.getElementById('voice-text').value='';
-  document.getElementById('voice-status').textContent='';
-  document.getElementById('voice-result-macchina').style.display='none';
-  document.getElementById('voice-result-log').style.display='none';
-  document.getElementById('voice-result-error').style.display='none';
-  document.getElementById('voice-send-btn').style.display='block';
-  // populate contatti select
-  const sel=document.getElementById('vr-l-contatto');
-  sel.innerHTML='<option value="">-- seleziona --</option>'+contatti.sort((a,b)=>a.nome.localeCompare(b.nome,'it')).map(c=>`<option value="${c.id}">${c.nome} ${c.cognome||''} ${c.azienda?'('+c.azienda+')':''}</option>`).join('');
-  document.getElementById('modal-voice').classList.remove('hidden');
-  // auto start recording
-  startRecording();
+// ── GLOBAL SEARCH ─────────────────────────────────────
+let gsrTimer=null;
+
+function onGlobalSearch(val){
+  clearTimeout(gsrTimer);
+  if(!val.trim()){closeGlobalSearch();return}
+  gsrTimer=setTimeout(()=>showGlobalResults(val),250);
 }
 
-async function startRecording(){
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder=new MediaRecorder(stream);
-    audioChunks=[];
-    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.onstop=async()=>{
-      stream.getTracks().forEach(t=>t.stop());
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
-      await transcribeAudio(blob);
-    };
-    mediaRecorder.start();
-    isRecording=true;
-    document.getElementById('voice-fab').classList.add('recording');
-    document.getElementById('voice-status').innerHTML='🔴 Registrazione in corso... <button onclick="stopRecording()" style="background:var(--red);color:#fff;border:none;border-radius:5px;padding:3px 8px;font-size:12px;cursor:pointer;margin-left:8px">Stop</button>';
-  }catch(e){
-    document.getElementById('voice-status').textContent='Microfono non disponibile — scrivi direttamente sopra.';
+function highlight(text, q){
+  if(!q||!text)return text||'';
+  const escaped=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return String(text).replace(new RegExp('('+escaped+')','gi'),'<mark>$1</mark>');
+}
+
+function showGlobalResults(val){
+  const q=val.trim().toLowerCase();
+  if(!q)return;
+  document.getElementById('gsr-overlay').classList.remove('hidden');
+  document.getElementById('gsr-query-label').textContent='"'+val+'"';
+
+  // Search contatti
+  const matchC=contatti.filter(c=>[c.nome,c.cognome,c.azienda,c.paese,c.cerca].join(' ').toLowerCase().includes(q));
+  // Search macchine
+  const matchM=macchine.filter(m=>[m.macchina,m.contatto,m.note].join(' ').toLowerCase().includes(q));
+  // Search eventi
+  const matchE=eventi.filter(e=>[e.testo,e.contactName].join(' ').toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
+
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
+
+  let html='';
+
+  if(!matchC.length&&!matchM.length&&!matchE.length){
+    html='<div class="gsr-empty">Nessun risultato per "'+val+'"</div>';
   }
-}
 
-function stopRecording(){
-  if(mediaRecorder&&isRecording){
-    mediaRecorder.stop();
-    isRecording=false;
-    document.getElementById('voice-fab').classList.remove('recording');
-    document.getElementById('voice-status').textContent='⏳ Trascrizione...';
+  if(matchC.length){
+    html+=`<div class="gsr-section"><div class="gsr-section-title">👤 Contatti (${matchC.length})</div>`;
+    html+=matchC.map(c=>`<div class="gsr-item" onclick="closeGlobalSearch();openDetailC('${c.id}')">
+      <div class="gsr-item-name">${highlight(c.nome+' '+(c.cognome||''),val)}</div>
+      <div class="gsr-item-sub">${highlight(c.azienda||'',val)} ${c.paese?'· '+c.paese:''} <span class="badge badge-${c.tipo}" style="font-size:10px">${TL[c.tipo]||c.tipo}</span></div>
+      ${c.cerca?`<div class="gsr-item-snippet">${highlight(c.cerca,val)}</div>`:''}
+    </div>`).join('');
+    html+='</div>';
   }
-}
 
-async function transcribeAudio(blob){
-  try{
-    // Use Web Speech API fallback if available, otherwise show manual input
-    document.getElementById('voice-status').textContent='✅ Registrazione completata — premi "Analizza con AI" o modifica il testo.';
-    // Since we can't use Whisper directly from browser, use Web Speech API
-    document.getElementById('voice-text').placeholder='Trascrizione non disponibile direttamente — scrivi o incolla il testo e premi Analizza.';
-  }catch(e){
-    document.getElementById('voice-status').textContent='Scrivi il testo e premi Analizza.';
+  if(matchM.length){
+    html+=`<div class="gsr-section"><div class="gsr-section-title">🚜 Macchine (${matchM.length})</div>`;
+    html+=matchM.map(m=>`<div class="gsr-item" onclick="closeGlobalSearch();openDetailM('${m.id}')">
+      <div class="gsr-item-name">${highlight(m.macchina,val)}</div>
+      <div class="gsr-item-sub">${[m.anno,m.ore?m.ore+' ore':'',m.prezzo?'€'+Number(m.prezzo).toLocaleString('it-IT'):''].filter(Boolean).join(' · ')} <span class="badge seg-tipo-${m.tipo}" style="font-size:10px">${m.tipo==='offerta'?'Offerta':'Richiesta'}</span></div>
+      ${m.contatto?`<div class="gsr-item-snippet">📞 ${highlight(m.contatto,val)}</div>`:''}
+    </div>`).join('');
+    html+='</div>';
   }
-}
 
-async function processVoiceText(){
-  const testo=document.getElementById('voice-text').value.trim();
-  if(!testo){alert('Scrivi o registra qualcosa prima.');return}
-  
-  document.getElementById('voice-send-btn').textContent='Analisi in corso...';
-  document.getElementById('voice-send-btn').disabled=true;
-  document.getElementById('voice-result-macchina').style.display='none';
-  document.getElementById('voice-result-log').style.display='none';
-  document.getElementById('voice-result-error').style.display='none';
-
-  const contattiList=contatti.map(c=>`- ${c.nome} ${c.cognome||''} ${c.azienda?'('+c.azienda+')':''} [id:${c.id}]`).join('\n');
-
-  const prompt=`Sei un assistente CRM per un'azienda che commercia macchine movimento terra usate (escavatori, bulldozer, pale gommate, dumper, ecc.).
-
-L'utente ha detto: "${testo}"
-
-Lista contatti esistenti nel CRM:
-${contattiList||'(nessuno ancora)'}
-
-Analizza il testo e rispondi SOLO con un JSON valido, senza altri testi.
-
-Se parla di una macchina (offerta, richiesta, disponibilità, prezzo), rispondi:
-{
-  "tipo": "macchina",
-  "dati": {
-    "tipo": "offerta" o "richiesta",
-    "macchina": "marca + modello + tipo macchina",
-    "anno": numero o null,
-    "ore": numero o null,
-    "prezzo": numero o null,
-    "paese": "paese" o null,
-    "contatto": "nome contatto" o null,
-    "note": "altri dettagli" o null
+  if(matchE.length){
+    html+=`<div class="gsr-section"><div class="gsr-section-title">📋 Log (${matchE.length})</div>`;
+    html+=matchE.slice(0,20).map(e=>`<div class="gsr-item" onclick="closeGlobalSearch();openDetailC('${e.contactId}')">
+      <div class="gsr-item-name">${highlight(e.contactName,val)}</div>
+      <div class="gsr-item-snippet">${highlight(e.testo.slice(0,120),val)}${e.testo.length>120?'…':''}</div>
+      <div style="font-size:10px;color:var(--txt3);margin-top:3px;font-family:'DM Mono',monospace">${fmtDate(e.date)}</div>
+    </div>`).join('');
+    html+='</div>';
   }
+
+  document.getElementById('gsr-content').innerHTML=html;
 }
 
-Se parla di un aggiornamento su un contatto (cosa ha detto, cosa cerca, cosa ha venduto, una notizia su di lui), rispondi:
-{
-  "tipo": "log",
-  "dati": {
-    "contactId": "id del contatto se riconosci il nome, altrimenti null",
-    "contactName": "nome del contatto menzionato",
-    "testo": "testo pulito del log da salvare"
-  }
-}`;
-
-  try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data=await resp.json();
-    const raw=data.content[0].text.trim();
-    const clean=raw.replace(/```json|```/g,'').trim();
-    const result=JSON.parse(clean);
-
-    document.getElementById('voice-send-btn').textContent='Analizza con AI ✨';
-    document.getElementById('voice-send-btn').disabled=false;
-
-    if(result.tipo==='macchina'){
-      const d=result.dati;
-      document.getElementById('vr-m-tipo').value=d.tipo||'offerta';
-      document.getElementById('vr-m-status').value='aperta';
-      document.getElementById('vr-m-macchina').value=d.macchina||'';
-      document.getElementById('vr-m-anno').value=d.anno||'';
-      document.getElementById('vr-m-ore').value=d.ore||'';
-      document.getElementById('vr-m-prezzo').value=d.prezzo||'';
-      document.getElementById('vr-m-paese').value=d.paese||'';
-      document.getElementById('vr-m-contatto').value=d.contatto||'';
-      document.getElementById('vr-m-note').value=d.note||'';
-      document.getElementById('voice-result-macchina').style.display='block';
-      document.getElementById('voice-send-btn').style.display='none';
-    } else if(result.tipo==='log'){
-      const d=result.dati;
-      document.getElementById('vr-l-testo').value=d.testo||testo;
-      if(d.contactId)document.getElementById('vr-l-contatto').value=d.contactId;
-      document.getElementById('voice-result-log').style.display='block';
-      document.getElementById('voice-send-btn').style.display='none';
-    }
-  }catch(e){
-    document.getElementById('voice-send-btn').textContent='Analizza con AI ✨';
-    document.getElementById('voice-send-btn').disabled=false;
-    document.getElementById('voice-result-error').style.display='block';
-    document.getElementById('voice-result-error').textContent='Errore analisi AI. Riprova.';
-  }
+function closeGlobalSearch(){
+  document.getElementById('gsr-overlay').classList.add('hidden');
+  document.getElementById('global-search').value='';
 }
 
-async function saveVoiceMacchina(){
-  const macchina=document.getElementById('vr-m-macchina').value.trim();
-  if(!macchina){alert('Macchina obbligatoria');return}
-  const obj={id:uid(),tipo:document.getElementById('vr-m-tipo').value,status:document.getElementById('vr-m-status').value,macchina,anno:document.getElementById('vr-m-anno').value,ore:document.getElementById('vr-m-ore').value,prezzo:document.getElementById('vr-m-prezzo').value,paese:document.getElementById('vr-m-paese').value.trim(),contatto:document.getElementById('vr-m-contatto').value.trim(),note:document.getElementById('vr-m-note').value.trim(),createdAt:today()};
-  macchine=[obj,...macchine];
-  closeModal('modal-voice');
-  switchTab('macchine');
-  await saveData();
-}
-
-async function saveVoiceLog(){
-  const testo=document.getElementById('vr-l-testo').value.trim();
-  const contactId=document.getElementById('vr-l-contatto').value;
-  if(!testo){alert('Testo obbligatorio');return}
-  if(!contactId){alert('Seleziona il contatto');return}
-  const c=contatti.find(x=>x.id===contactId);
-  const evento={id:uid(),contactId,contactName:c?`${c.nome} ${c.cognome||''} ${c.azienda?'('+c.azienda+')':''}`.trim():'',testo,date:new Date().toISOString()};
-  eventi=[evento,...eventi];
-  closeModal('modal-voice');
-  renderContatti();
-  await saveData();
-}
+// Close on back button
+window.addEventListener('popstate',closeGlobalSearch);
 
 // ── INIT ──────────────────────────────────────────────
 if(sessionStorage.getItem('crm_auth')==='1')loadData();
 </script>
-<button class="voice-btn" id="voice-fab" onclick="openVoiceModal()">🎙️</button>
+
+<!-- GLOBAL SEARCH RESULTS -->
+<div class="gsr-overlay hidden" id="gsr-overlay">
+  <div class="gsr-header">
+    <button class="gsr-back" onclick="closeGlobalSearch()">← Indietro</button>
+    <div class="gsr-query" id="gsr-query-label"></div>
+  </div>
+  <div id="gsr-content"></div>
+</div>
 </body>
 </html>
