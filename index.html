@@ -574,7 +574,6 @@ function openModalMacchina(id){
   document.getElementById('m-anno').value=m?.anno||'';
   document.getElementById('m-ore').value=m?.ore||'';
   document.getElementById('m-prezzo').value=m?.prezzo||'';
-  document.getElementById('m-paese').value=m?.paese||'';
   document.getElementById('m-contatto').value=m?.contatto||'';
   document.getElementById('m-note').value=m?.note||'';
   document.getElementById('dl-contatti').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
