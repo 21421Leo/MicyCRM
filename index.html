@@ -160,6 +160,13 @@ textarea.form-input{resize:vertical;min-height:80px}
 .gsr-item-snippet{font-size:12px;color:var(--txt3);margin-top:4px;line-height:1.4}
 .gsr-empty{font-size:13px;color:var(--txt3);text-align:center;padding:40px 20px}
 mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:0 1px}
+
+/* MACHINE ROWS */
+.mm-row{background:var(--sur2);border-radius:8px;padding:11px 12px;margin-bottom:10px;position:relative}
+.mm-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mm-row-num{font-size:11px;color:var(--txt3);font-family:'DM Mono',monospace;font-weight:600}
+.mm-row-del{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
+.mm-row input,.mm-row select{background:var(--sur);border:1px solid var(--bor)}
 </style>
 </head>
 <body>
@@ -276,7 +283,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 <div class="modal-overlay hidden" id="modal-macchina">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="mm-title">Macchina sentita in giro</div>
+    <div class="modal-title" id="mm-title">Macchine in giro</div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Tipo *</label>
         <select class="form-input" id="m-tipo">
@@ -291,23 +298,15 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
         </select>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Macchina *</label><input class="form-input" id="m-macchina" placeholder="es. Caterpillar 336 Escavatore"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Anno</label><input class="form-input" id="m-anno" type="number" placeholder="2018"></div>
-      <div class="form-group"><label class="form-label">Ore</label><input class="form-input" id="m-ore" type="number" placeholder="8500"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Prezzo €</label><input class="form-input" id="m-prezzo" type="number" placeholder="95000"></div>
-    </div>
     <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
-    <div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="m-note" placeholder="Condizioni, dettagli, attrezzature..."></textarea></div>
+    <div id="mm-list"></div>
+    <button onclick="addMacchinaRow()" style="width:100%;background:transparent;border:1px dashed var(--bor);border-radius:8px;padding:10px;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:14px">+ Aggiungi macchina</button>
     <div class="form-actions">
       <button class="btn-secondary" onclick="closeModal('modal-macchina')">Annulla</button>
-      <button class="btn-primary" onclick="salvaMacchina()">Salva</button>
+      <button class="btn-primary" onclick="salvaMultiMacchina()">Salva tutto</button>
     </div>
   </div>
 </div>
-
 
 <!-- MODAL AGGIUNGI LOG -->
 <div class="modal-overlay hidden" id="modal-log">
@@ -565,19 +564,62 @@ function openModalContatto(id){
   document.getElementById('modal-contatto').classList.remove('hidden');
 }
 
+let mmRowCount=0;
+
 function openModalMacchina(id){
-  editMId=id||null;const m=id?macchine.find(x=>x.id===id):null;
-  document.getElementById('mm-title').textContent=id?'Modifica':'Macchina sentita in giro';
-  document.getElementById('m-tipo').value=m?.tipo||'offerta';
-  document.getElementById('m-status').value=m?.status||'aperta';
-  document.getElementById('m-macchina').value=m?.macchina||'';
-  document.getElementById('m-anno').value=m?.anno||'';
-  document.getElementById('m-ore').value=m?.ore||'';
-  document.getElementById('m-prezzo').value=m?.prezzo||'';
-  document.getElementById('m-contatto').value=m?.contatto||'';
-  document.getElementById('m-note').value=m?.note||'';
+  editMId=id||null;
   document.getElementById('dl-contatti').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  
+  if(id){
+    // Edit single machine - populate single row
+    const m=macchine.find(x=>x.id===id);
+    document.getElementById('mm-title').textContent='Modifica macchina';
+    document.getElementById('m-tipo').value=m?.tipo||'offerta';
+    document.getElementById('m-status').value=m?.status||'aperta';
+    document.getElementById('m-contatto').value=m?.contatto||'';
+    mmRowCount=0;
+    document.getElementById('mm-list').innerHTML='';
+    addMacchinaRow(m);
+  } else {
+    // New - start with one empty row
+    document.getElementById('mm-title').textContent='Macchine in giro';
+    document.getElementById('m-tipo').value='offerta';
+    document.getElementById('m-status').value='aperta';
+    document.getElementById('m-contatto').value='';
+    mmRowCount=0;
+    document.getElementById('mm-list').innerHTML='';
+    addMacchinaRow();
+  }
   document.getElementById('modal-macchina').classList.remove('hidden');
+}
+
+function addMacchinaRow(data){
+  mmRowCount++;
+  const n=mmRowCount;
+  const div=document.createElement('div');
+  div.className='mm-row';
+  div.id='mm-row-'+n;
+  div.innerHTML=`
+    <div class="mm-row-header">
+      <span class="mm-row-num">MACCHINA ${n}</span>
+      ${n>1?`<button class="mm-row-del" onclick="removeMacchinaRow(${n})">✕</button>`:''}
+    </div>
+    <div class="form-group"><input class="form-input" id="mm-macchina-${n}" placeholder="es. Caterpillar 336 Escavatore" value="${data?.macchina||''}"></div>
+    <div class="form-row">
+      <div class="form-group"><input class="form-input" id="mm-anno-${n}" type="number" placeholder="Anno" value="${data?.anno||''}"></div>
+      <div class="form-group"><input class="form-input" id="mm-ore-${n}" type="number" placeholder="Ore" value="${data?.ore||''}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><input class="form-input" id="mm-prezzo-${n}" type="number" placeholder="Prezzo €" value="${data?.prezzo||''}"></div>
+      <div class="form-group" style="display:flex;align-items:flex-end"><input class="form-input" id="mm-note-${n}" placeholder="Note rapide" value="${data?.note||''}"></div>
+    </div>
+  `;
+  document.getElementById('mm-list').appendChild(div);
+  document.getElementById('mm-macchina-'+n).focus();
+}
+
+function removeMacchinaRow(n){
+  document.getElementById('mm-row-'+n)?.remove();
 }
 
 function openModalLog(contactId){
@@ -597,11 +639,34 @@ async function salvaContatto(){
   closeModal('modal-contatto');closeModal('modal-detail-c');renderContatti();await saveData();
 }
 
-async function salvaMacchina(){
-  const macchina=document.getElementById('m-macchina').value.trim();
-  if(!macchina){alert('Macchina obbligatoria');return}
-  const obj={id:editMId||uid(),tipo:document.getElementById('m-tipo').value,status:document.getElementById('m-status').value,macchina,anno:document.getElementById('m-anno').value,ore:document.getElementById('m-ore').value,prezzo:document.getElementById('m-prezzo').value,paese:'',contatto:document.getElementById('m-contatto').value.trim(),note:document.getElementById('m-note').value.trim(),createdAt:editMId?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()};
-  macchine=editMId?macchine.map(m=>m.id===editMId?obj:m):[obj,...macchine];
+async function salvaMultiMacchina(){
+  const tipo=document.getElementById('m-tipo').value;
+  const status=document.getElementById('m-status').value;
+  const contatto=document.getElementById('m-contatto').value.trim();
+  const rows=document.querySelectorAll('#mm-list .mm-row');
+  const nuove=[];
+  let errore=false;
+  rows.forEach(row=>{
+    const n=row.id.replace('mm-row-','');
+    const macchina=document.getElementById('mm-macchina-'+n)?.value.trim();
+    if(!macchina){errore=true;return}
+    nuove.push({
+      id:editMId&&rows.length===1?editMId:uid(),
+      tipo,status,macchina,
+      anno:document.getElementById('mm-anno-'+n)?.value||'',
+      ore:document.getElementById('mm-ore-'+n)?.value||'',
+      prezzo:document.getElementById('mm-prezzo-'+n)?.value||'',
+      paese:'',contatto,
+      note:document.getElementById('mm-note-'+n)?.value.trim()||'',
+      createdAt:editMId&&rows.length===1?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()
+    });
+  });
+  if(errore||!nuove.length){alert('Inserisci almeno il nome di ogni macchina');return}
+  if(editMId&&nuove.length===1){
+    macchine=macchine.map(m=>m.id===editMId?nuove[0]:m);
+  } else {
+    macchine=[...nuove.reverse(),...macchine];
+  }
   closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();await saveData();
 }
 
