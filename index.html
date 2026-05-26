@@ -333,10 +333,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 </div>
 
 <script>
-const BIN_ID='6a02ee0d250b1311c33a87c7';
-const MASTER_KEY='$2a$10$Fp1SmnPMs5I59rGoK8kzW.GvacWccf.CZ8dC9sHc8Yl6ytz/4Jfji';
-const ACCESS_KEY='$2a$10$dAhYT3aMGNtOmj4i8K6ay.BIhIC4QudlZ7C8QbD1eHzGe0KsF1PEG';
-const API='https://api.jsonbin.io/v3/b/'+BIN_ID;
+const API='https://bitter-moon-4ac4.francesco-403.workers.dev';
 const PWD='micy2024';
 const REMIND_DAYS=60;
 
@@ -374,11 +371,12 @@ function setSync(state,text){
 async function loadData(){
   setSync('loading','Caricamento...');
   try{
-    const r=await fetch(API+'/latest',{headers:{'X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY}});
+    const r=await fetch(API,{method:'GET'});
     const d=await r.json();
-    contatti=(d.record.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
-    macchine=d.record.macchine||[];
-    eventi=d.record.eventi||[];
+    const rec=d.record||d;
+    contatti=(rec.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
+    macchine=rec.macchine||[];
+    eventi=rec.eventi||[];
     setSync('ok','Sincronizzato');
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
@@ -391,7 +389,7 @@ async function loadData(){
 async function saveData(){
   if(saving)return;saving=true;setSync('loading','Salvataggio...');
   try{
-    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY,'X-Access-Key':ACCESS_KEY},body:JSON.stringify({contatti,macchine,eventi})});
+    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({contatti,macchine,eventi})});
     setSync('ok','Salvato ✓');
   }catch(e){setSync('err','Errore salvataggio')}
   saving=false;
