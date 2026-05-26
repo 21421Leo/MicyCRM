@@ -363,6 +363,7 @@ function doLogin(){
 if(sessionStorage.getItem('crm_auth')==='1'){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('loading').style.display='flex';
+  loadData();
 }
 
 // ── SYNC ─────────────────────────────────────────────
