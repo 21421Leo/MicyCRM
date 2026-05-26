@@ -373,10 +373,9 @@ async function loadData(){
   try{
     const r=await fetch(API,{method:'GET'});
     const d=await r.json();
-    const rec=d.record||d;
-    contatti=(rec.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
-    macchine=rec.macchine||[];
-    eventi=rec.eventi||[];
+    contatti=(d.contatti||d.record?.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
+    macchine=d.macchine||d.record?.macchine||[];
+    eventi=d.eventi||d.record?.eventi||[];
     setSync('ok','Sincronizzato');
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
