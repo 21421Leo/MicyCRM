@@ -298,7 +298,21 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
         </select>
       </div>
     </div>
-    <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Categoria</label>
+        <select class="form-input" id="m-categoria">
+          <option value="">Auto (dal nome)</option>
+          <option value="Escavatori">Escavatori</option>
+          <option value="Pale gommate">Pale gommate</option>
+          <option value="Bulldozer">Bulldozer</option>
+          <option value="Dumper">Dumper</option>
+          <option value="Terne">Terne</option>
+          <option value="Minipale">Minipale</option>
+          <option value="Altro">Altro</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
+    </div>
     <div id="mm-list"></div>
     <button onclick="addMacchinaRow()" style="width:100%;background:transparent;border:1px dashed var(--bor);border-radius:8px;padding:10px;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:14px">+ Aggiungi macchina</button>
     <div class="form-actions">
@@ -476,14 +490,32 @@ function getLastContact(contactId){
 }
 
 // ── RENDER MACCHINE ───────────────────────────────────
+const CATEGORIE=['Escavatori','Pale gommate','Bulldozer','Dumper','Terne','Minipale','Altro'];
+const CAT_ICONS={'Escavatori':'\u26cf\ufe0f','Pale gommate':'\ud83d\ude9c','Bulldozer':'\ud83d\udea7','Dumper':'\ud83d\ude9b','Terne':'\ud83d\udd27','Minipale':'\ud83d\udd29','Altro':'\ud83d\udce6'};
+
+function autoCategoria(nome){
+  const n=(nome||'').toLowerCase();
+  // Escavatori: numeri tipo 320, 336, EC, ZX, PC, R9, HX, sigle escavatore
+  if(/\b(ec|zx|pc|zw|hx|r9|wx|js|sk|ze|fh)\d/i.test(n)||/escavat|\b3[0-9]{2}[a-z]?\b|\b2[0-9]{2}[a-z]?\b|\b1[0-9]{2}[a-z]?\b/i.test(n))return 'Escavatori';
+  // Pale gommate: L+numeri, WA, 9xx M/H, 96x 97x 98x, pala gomm
+  if(/\bl\d{2,3}/i.test(n)||/\bwa\d/i.test(n)||/pala gomm|\b9[0-9]{2}[a-z]?\b|\b8[0-9]{2}[a-z]?\b/i.test(n))return 'Pale gommate';
+  // Bulldozer: D+numero, dozer, D9 D6 D5
+  if(/\bd\d[a-z]?\b/i.test(n)||/dozer|bulldoz/i.test(n))return 'Bulldozer';
+  // Dumper: A30 A40 dumper, B30, articolat (FH e' Fiat-Hitachi escavatore)
+  if(/dumper|\ba[34]0|\bb[34]0|articolat/i.test(n))return 'Dumper';
+  // Terne
+  if(/terna|backhoe|\b4[0-9]{2}[ef]\b/i.test(n))return 'Terne';
+  // Minipale
+  if(/minipal|skid|bobcat|\b2[0-9]{2}d?\b.*cingol/i.test(n))return 'Minipale';
+  return 'Altro';
+}
+
 function renderMacchine(){
   const dl=document.getElementById('dl-contatti');
   if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
-  const q='';
   const list=macchine.filter(m=>{
-    const match=!q||[m.macchina,m.contatto,m.paese,m.note].join(' ').toLowerCase().includes(q);
-    return match&&(filterM==='tutti'||m.tipo===filterM||m.status===filterM);
-  }).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','it'));
+    return filterM==='tutti'||m.tipo===filterM||m.status===filterM;
+  });
   const aperte=macchine.filter(m=>m.status==='aperta').length;
   const offerte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').length;
   const richieste=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').length;
@@ -493,18 +525,43 @@ function renderMacchine(){
     <div class="stat-pill"><div class="stat-num">${offerte}</div><div class="stat-lbl">Offerte</div></div>
     <div class="stat-pill"><div class="stat-num">${richieste}</div><div class="stat-lbl">Richieste</div></div>`;
   const el=document.getElementById('list-macchine');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🚜</div>${q?'Nessun risultato':'Nessuna macchina ancora.'}</div>`;return}
-  el.innerHTML=list.map(m=>{
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🚜</div>Nessuna macchina ancora.</div>`;return}
+
+  // Group by categoria
+  const cardHtml=(m)=>{
     const col=m.status==='chiusa'?'var(--txt3)':(m.tipo==='offerta'?'var(--red)':'var(--blue)');
     let det=[];if(m.anno)det.push(m.anno);if(m.ore)det.push(Number(m.ore).toLocaleString('it-IT')+' ore');if(m.prezzo)det.push(fmtE(m.prezzo));
     return`<div class="seg-card" onclick="openDetailM('${m.id}')">
       <div class="seg-bar" style="background:${col}"></div>
-      <div class="card-header"><div class="seg-macchina">${m.macchina}</div><span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span></div>
+      <div class="card-header"><div class="seg-macchina">${m.macchina}</div><span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤':'📥'} ${m.status==='chiusa'?'Archiviata':(m.tipo==='offerta'?'Offerta':'Richiesta')}</span></div>
       ${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}
       <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span></div>
       ${m.note?`<div class="seg-note">${m.note.slice(0,100)}${m.note.length>100?'…':''}</div>`:''}
     </div>`;
-  }).join('');
+  };
+
+  // Build category groups
+  const groups={};
+  CATEGORIE.forEach(cat=>groups[cat]=[]);
+  list.forEach(m=>{
+    const cat=m.categoria||autoCategoria(m.macchina);
+    if(!groups[cat])groups[cat]=[];
+    groups[cat].push(m);
+  });
+
+  let html='';
+  CATEGORIE.forEach(cat=>{
+    const items=groups[cat];
+    if(!items.length)return;
+    html+=`<div style="margin-bottom:22px">
+      <div style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--bor);display:flex;justify-content:space-between;align-items:center">
+        <span>${CAT_ICONS[cat]||''} ${cat}</span>
+        <span style="color:var(--txt3);font-family:'DM Mono',monospace;font-size:11px">${items.length}</span>
+      </div>
+      ${items.map(cardHtml).join('')}
+    </div>`;
+  });
+  el.innerHTML=html;
 }
 
 // ── RENDER EVENTI ─────────────────────────────────────
@@ -574,6 +631,7 @@ function openModalMacchina(id){
     document.getElementById('mm-title').textContent='Modifica macchina';
     document.getElementById('m-tipo').value=m?.tipo||'offerta';
     document.getElementById('m-status').value=m?.status||'aperta';
+    document.getElementById('m-categoria').value=m?.categoria||'';
     document.getElementById('m-contatto').value=m?.contatto||'';
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
@@ -583,6 +641,7 @@ function openModalMacchina(id){
     document.getElementById('mm-title').textContent='Macchine in giro';
     document.getElementById('m-tipo').value='offerta';
     document.getElementById('m-status').value='aperta';
+    document.getElementById('m-categoria').value='';
     document.getElementById('m-contatto').value='';
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
@@ -640,6 +699,7 @@ async function salvaContatto(){
 async function salvaMultiMacchina(){
   const tipo=document.getElementById('m-tipo').value;
   const status=document.getElementById('m-status').value;
+  const categoria=document.getElementById('m-categoria').value;
   const contatto=document.getElementById('m-contatto').value.trim();
   const rows=document.querySelectorAll('#mm-list .mm-row');
   const nuove=[];
@@ -650,7 +710,7 @@ async function salvaMultiMacchina(){
     if(!macchina){errore=true;return}
     nuove.push({
       id:editMId&&rows.length===1?editMId:uid(),
-      tipo,status,macchina,
+      tipo,status,macchina,categoria,
       anno:document.getElementById('mm-anno-'+n)?.value||'',
       ore:document.getElementById('mm-ore-'+n)?.value||'',
       prezzo:document.getElementById('mm-prezzo-'+n)?.value||'',
@@ -738,8 +798,12 @@ function openDetailM(id){
       <span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}</span>
     </div>
     ${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} 
-    ${m.contatto||m.paese?`<div class="detail-label">Fonte</div><div class="detail-value">${m.contatto?'📞 '+m.contatto:''}</div>`:''}
-    <div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Chiusa'} · ${fmtDate(m.createdAt)}</div>
+    ${m.contatto?`<div class="detail-label">Fonte</div><div class="detail-value">📞 ${m.contatto}</div>`:''}
+    <div class="detail-label">Categoria</div>
+    <select class="form-input" style="margin-bottom:14px" onchange="cambiaCategoria('${m.id}',this.value)">
+      ${['Escavatori','Pale gommate','Bulldozer','Dumper','Terne','Minipale','Altro'].map(cat=>`<option value="${cat}" ${(m.categoria||autoCategoria(m.macchina))===cat?'selected':''}>${cat}</option>`).join('')}
+    </select>
+    <div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Archiviata'} · ${fmtDate(m.createdAt)}</div>
     ${m.note?`<div class="detail-label">Note</div><div class="detail-value">${m.note}</div>`:''}
     ${m.tipo==='offerta'&&m.status==='aperta'?matchHtmlContatti(findMatchingContatti(m),m.id):''}
     <div class="detail-actions">
@@ -789,6 +853,7 @@ function matchHtmlMacchine(matches){
 async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
 async function eliminaM(id){if(!confirm('Eliminare?'))return;macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
 async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
+async function cambiaCategoria(id,cat){macchine=macchine.map(m=>m.id===id?{...m,categoria:cat}:m);renderMacchine();await saveData()}
 async function toggleM(id){macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
 
 
