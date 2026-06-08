@@ -6,7 +6,7 @@
 <title>CRM Macchine</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f0f0f;--sur:#181818;--sur2:#222;--bor:#2a2a2a;--acc:#d4a843;--acc2:#e8c870;--txt:#f0ede6;--txt2:#888;--txt3:#555;--red:#e05555;--green:#5cb85c;--blue:#5b9bd5;--rad:10px}
+:root{--bg:#0f0f0f;--sur:#1c1c1c;--sur2:#262626;--bor:#363636;--acc:#e3b84e;--acc2:#f0d27a;--txt:#f5f2ec;--txt2:#aaa;--txt3:#7a7a7a;--red:#ec6a6a;--green:#6cc46c;--blue:#6fa9df;--rad:10px}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:15px}
 /* LOGIN */
@@ -151,9 +151,11 @@ textarea.form-input{resize:vertical;min-height:80px}
 .gsr-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--bor);position:sticky;top:0;background:var(--bg);z-index:10}
 .gsr-back{background:var(--sur2);border:none;color:var(--txt2);border-radius:7px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .gsr-query{font-size:13px;color:var(--txt2)}
-.gsr-section{padding:16px 16px 0}
-.gsr-section-title{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.gsr-item{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.gsr-content-wrap{max-width:680px;margin:0 auto}
+.gsr-section{padding:18px 16px 0}
+.gsr-section-title{font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.gsr-item{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:border-color .15s}
+.gsr-item:hover{border-color:var(--acc)}
 .gsr-item:active{border-color:var(--acc)}
 .gsr-item-name{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:2px}
 .gsr-item-sub{font-size:12px;color:var(--txt2)}
@@ -199,7 +201,9 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
         <div class="logo">◈ CRM MACCHINE</div>
         <div class="logo-sub">MICY S.R.O.</div>
       </div>
-      <div style="display:flex;align-items:center">
+      <div style="display:flex;align-items:center;gap:9px">
+        <button id="btn-undo" onclick="undo()" title="Annulla" style="background:var(--sur2);border:1px solid var(--bor);color:var(--txt);border-radius:7px;width:36px;height:33px;font-size:16px;cursor:pointer;opacity:.35" disabled>↶</button>
+        <button id="btn-redo" onclick="redo()" title="Ripeti" style="background:var(--sur2);border:1px solid var(--bor);color:var(--txt);border-radius:7px;width:36px;height:33px;font-size:16px;cursor:pointer;opacity:.35" disabled>↷</button>
         <span class="sync-dot" id="sync-dot"></span>
         <span class="sync-label" id="sync-label">...</span>
       </div>
@@ -228,7 +232,6 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
       <div class="chips">
         <button class="chip active" onclick="setFilterC('tutti',this)">Tutti</button>
         <button class="chip" onclick="setFilterC('cliente',this)">Clienti</button>
-        <button class="chip" onclick="setFilterC('fornitore',this)">Fornitori</button>
         <button class="chip" onclick="setFilterC('misto',this)">Commercianti</button>
       </div>
       <div id="list-contatti"></div>
@@ -271,7 +274,6 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
       <div class="form-group"><label class="form-label">Tipo *</label>
         <select class="form-input" id="c-tipo">
           <option value="cliente">Cliente</option>
-          <option value="fornitore">Fornitore</option>
           <option value="misto">Commerciante</option>
         </select>
       </div>
@@ -305,10 +307,15 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
       </div>
     </div>
     <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti" oninput="checkFonteRubrica()"><datalist id="dl-contatti"></datalist></div>
-    <label id="m-salva-rubrica-row" style="display:none;align-items:center;gap:8px;font-size:13px;color:var(--txt2);margin:-4px 0 14px;cursor:pointer">
+    <label id="m-salva-rubrica-row" style="display:none;align-items:center;gap:8px;font-size:13px;color:var(--txt2);margin:-4px 0 10px;cursor:pointer">
       <input type="checkbox" id="m-salva-rubrica" style="width:16px;height:16px;accent-color:var(--acc)">
       <span>Salva "<span id="m-fonte-nome"></span>" in rubrica come nuovo contatto</span>
     </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2);margin:0 0 10px;cursor:pointer">
+      <input type="checkbox" id="m-programma" onchange="document.getElementById('m-data-row').style.display=this.checked?'block':'none'" style="width:16px;height:16px;accent-color:var(--acc)">
+      <span>📅 Programmata nel futuro (es. vende a maggio 2027)</span>
+    </label>
+    <div class="form-group" id="m-data-row" style="display:none"><label class="form-label">Data prevista</label><input class="form-input" id="m-data" type="date"></div>
     <div id="mm-list"></div>
     <button onclick="addMacchinaRow()" style="width:100%;background:transparent;border:1px dashed var(--bor);border-radius:8px;padding:10px;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:14px">+ Aggiungi macchina</button>
     <div class="form-actions">
@@ -356,6 +363,7 @@ let db=null,dataRef=null,firstSnap=true;
 const PWD='micy2024';
 const REMIND_DAYS=60;
 let deletedIds=[];
+let undoStack=[],redoStack=[];
 
 let contatti=[],macchine=[],eventi=[],filterC='tutti',filterM='tutti',editCId=null,editMId=null,logContactId=null,currentTab='contatti',saving=false;
 
@@ -424,7 +432,7 @@ async function loadData(){
     dataRef.onSnapshot(snap=>{
       if(!snap.exists)return;
       const d=snap.data();
-      contatti=(d.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
+      contatti=(d.contatti||[]).map(x=>(x.tipo==='broker'||x.tipo==='fornitore')?{...x,tipo:'misto'}:x);
       macchine=d.macchine||[];
       eventi=d.eventi||[];
       setSync('ok','Sincronizzato');
@@ -475,6 +483,41 @@ function mergeById(remote,local){
   return Object.values(map).filter(x=>!deletedIds.includes(x.id));
 }
 
+// ── UNDO / REDO ───────────────────────────────────────
+function snapshot(){return JSON.stringify({contatti,macchine,eventi});}
+function pushHistory(){
+  undoStack.push(snapshot());
+  if(undoStack.length>60)undoStack.shift();
+  redoStack=[];
+  updateUndoButtons();
+}
+function restoreSnapshot(s){
+  const d=JSON.parse(s);
+  contatti=d.contatti||[];macchine=d.macchine||[];eventi=d.eventi||[];
+}
+async function undo(){
+  if(!undoStack.length)return;
+  redoStack.push(snapshot());
+  restoreSnapshot(undoStack.pop());
+  updateUndoButtons();
+  rerenderCurrent();
+  await saveData();
+}
+async function redo(){
+  if(!redoStack.length)return;
+  undoStack.push(snapshot());
+  restoreSnapshot(redoStack.pop());
+  updateUndoButtons();
+  rerenderCurrent();
+  await saveData();
+}
+function updateUndoButtons(){
+  const u=document.getElementById('btn-undo'),r=document.getElementById('btn-redo');
+  if(!u||!r)return;
+  u.disabled=!undoStack.length;u.style.opacity=undoStack.length?'1':'.35';
+  r.disabled=!redoStack.length;r.style.opacity=redoStack.length?'1':'.35';
+}
+
 // ── TABS ─────────────────────────────────────────────
 function switchTab(t){
   currentTab=t;
@@ -501,8 +544,6 @@ function renderHome(){
   const saluto=ora<12?'Buongiorno':(ora<18?'Buon pomeriggio':'Buonasera');
 
   // KPI
-  const nClienti=contatti.filter(c=>c.tipo==='cliente').length;
-  const nFornitori=contatti.filter(c=>c.tipo==='fornitore').length;
   const richiesteAperte=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta');
   const offerteAperte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta');
 
@@ -517,27 +558,66 @@ function renderHome(){
   // Ultima attività (log)
   const ultimiLog=[...eventi].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
 
-  const kpi=(num,lab,col,onclick)=>`<div onclick="${onclick||''}" style="flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:16px 12px;text-align:center;cursor:${onclick?'pointer':'default'}">
-    <div style="font-size:28px;font-weight:700;color:${col};font-family:'DM Mono',monospace;line-height:1">${num}</div>
-    <div style="font-size:11px;color:var(--txt3);margin-top:6px;text-transform:uppercase;letter-spacing:.04em">${lab}</div>
-  </div>`;
+  // ── CALENDARIO: macchine con data programmata ──
+  const programmate=macchine.filter(m=>m.dataProgrammata).map(m=>({m,d:new Date(m.dataProgrammata+'T00:00:00')})).sort((a,b)=>a.d-b.d);
+  // settimana corrente (lun-dom)
+  const oggi0=new Date();oggi0.setHours(0,0,0,0);
+  const dow=(oggi0.getDay()+6)%7; // 0=lunedì
+  const lun=new Date(oggi0);lun.setDate(oggi0.getDate()-dow);
+  const dom=new Date(lun);dom.setDate(lun.getDate()+6);dom.setHours(23,59,59,999);
+  const giorniSett=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+  const questaSett=programmate.filter(x=>x.d>=lun&&x.d<=dom);
+  const future=programmate.filter(x=>x.d>dom);
+  const scadute=programmate.filter(x=>x.d<oggi0&&x.m.status==='aperta');
 
   let html=`
   <div style="margin-bottom:18px">
     <div style="font-size:21px;font-weight:700">${saluto} 👋</div>
-    <div style="color:var(--txt3);font-size:13px;margin-top:2px">${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}</div>
-  </div>
-
-  <div style="display:flex;gap:9px;margin-bottom:11px">
-    ${kpi(contatti.length,'Contatti','var(--acc)',"switchTab('contatti')")}
-    ${kpi(richiesteAperte.length,'Richieste','var(--blue)',"switchTab('macchine');setTimeout(()=>{const b=[...document.querySelectorAll('#view-macchine .chip')].find(x=>x.textContent==='Richieste');if(b)b.click()},50)")}
-    ${kpi(offerteAperte.length,'Offerte','var(--red)',"switchTab('macchine')")}
-  </div>
-  <div style="display:flex;gap:9px;margin-bottom:22px">
-    ${kpi(nClienti,'Clienti','var(--txt)',"switchTab('contatti')")}
-    ${kpi(nFornitori,'Fornitori','var(--txt)',"switchTab('contatti')")}
-    ${kpi(daRisentire.length,'Da risentire',daRisentire.length?'var(--red)':'var(--txt)')}
+    <div style="color:var(--txt2);font-size:13px;margin-top:2px;text-transform:capitalize">${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}</div>
   </div>`;
+
+  // Striscia settimana
+  html+=`<div class="section-title" style="color:var(--acc)">📅 Questa settimana</div>
+  <div style="display:flex;gap:5px;margin-bottom:14px">`;
+  for(let i=0;i<7;i++){
+    const g=new Date(lun);g.setDate(lun.getDate()+i);
+    const isOggi=g.getTime()===oggi0.getTime();
+    const items=questaSett.filter(x=>x.d.toDateString()===g.toDateString());
+    html+=`<div style="flex:1;background:${isOggi?'var(--acc)':'var(--sur)'};border:1px solid ${isOggi?'var(--acc)':'var(--bor)'};border-radius:9px;padding:9px 4px;text-align:center">
+      <div style="font-size:10px;color:${isOggi?'#000':'var(--txt3)'};text-transform:uppercase">${giorniSett[i]}</div>
+      <div style="font-size:16px;font-weight:700;color:${isOggi?'#000':'var(--txt)'};font-family:'DM Mono',monospace">${g.getDate()}</div>
+      <div style="height:6px;margin-top:3px">${items.length?`<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${isOggi?'#000':'var(--blue)'}"></span>`:''}</div>
+    </div>`;
+  }
+  html+=`</div>`;
+
+  const agendaCard=(x,col)=>{
+    const m=x.m;const dataTxt=x.d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
+    return`<div onclick="switchTab('macchine');setTimeout(()=>openDetailM('${m.id}'),60)" style="background:var(--sur);border:1px solid var(--bor);border-left:3px solid ${col};border-radius:9px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-weight:600;font-size:14px">${m.macchina} <span style="font-size:11px;color:var(--txt3)">${m.tipo==='offerta'?'· vende':'· cerca'}</span></div>${m.contatto?`<div style="font-size:12px;color:var(--txt3)">📞 ${m.contatto}</div>`:''}</div>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:${col};white-space:nowrap;text-align:right">${dataTxt}</span>
+    </div>`;
+  };
+
+  if(scadute.length){
+    html+=`<div class="section-title" style="color:var(--red)">⚠️ Scadute da gestire (${scadute.length})</div><div style="margin-bottom:18px">`;
+    scadute.forEach(x=>html+=agendaCard(x,'var(--red)'));
+    html+=`</div>`;
+  }
+  if(questaSett.length){
+    html+=`<div class="section-title" style="color:var(--blue)">📌 In programma questa settimana</div><div style="margin-bottom:18px">`;
+    questaSett.forEach(x=>html+=agendaCard(x,'var(--blue)'));
+    html+=`</div>`;
+  }
+  if(future.length){
+    html+=`<div class="section-title">🔜 Prossimi appuntamenti</div><div style="margin-bottom:22px">`;
+    future.slice(0,6).forEach(x=>html+=agendaCard(x,'var(--acc)'));
+    if(future.length>6)html+=`<div style="text-align:center;color:var(--txt3);font-size:12px;padding:6px">+${future.length-6} altri programmati</div>`;
+    html+=`</div>`;
+  }
+  if(!scadute.length&&!questaSett.length&&!future.length){
+    html+=`<div style="background:var(--sur);border:1px solid var(--bor);border-radius:9px;padding:14px;text-align:center;color:var(--txt3);font-size:13px;margin-bottom:22px">Nessun appuntamento programmato.<br><span style="font-size:12px">Quando inserisci una macchina spunta "📅 Programmata nel futuro".</span></div>`;
+  }
 
   // Da risentire
   if(daRisentire.length){
@@ -610,8 +690,7 @@ function renderContatti(){
   document.getElementById('stats-contatti').innerHTML=`
     <div class="stat-pill"><div class="stat-num">${contatti.length}</div><div class="stat-lbl">Totali</div></div>
     <div class="stat-pill"><div class="stat-num">${stats.cliente||0}</div><div class="stat-lbl">Clienti</div></div>
-    <div class="stat-pill"><div class="stat-num">${stats.fornitore||0}</div><div class="stat-lbl">Fornitori</div></div>
-    <div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)}</div><div class="stat-lbl">Commercianti</div></div>`;
+    <div class="stat-pill"><div class="stat-num">${(stats.broker||0)+(stats.misto||0)+(stats.fornitore||0)}</div><div class="stat-lbl">Commercianti</div></div>`;
 
   const el=document.getElementById('list-contatti');
   if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>${q?'Nessun risultato':'Nessun contatto ancora.'}</div>`;return}
@@ -620,7 +699,7 @@ function renderContatti(){
     const logs=eventi.filter(e=>e.contactId===c.id).sort((a,b)=>b.date.localeCompare(a.date));
     const lastLog=logs[0];
     const giorni=daysAgo(getLastContact(c.id));
-    const macs=macchine.filter(m=>m.contatto===(c.nome+' '+(c.cognome||'')).trim()||m.contatto===c.azienda).length;
+    const macs=macchineDiContatto(c).length;
     return`<div class="card" onclick="openDetailC('${c.id}')">
       <div class="card-header">
         <div><div class="card-name">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div class="card-company">${c.azienda}</div>`:''}</div>
@@ -644,6 +723,17 @@ function renderContatti(){
   }).join('');
 }
 
+function macchineDiContatto(c){
+  const full=(c.nome+' '+(c.cognome||'')).trim().toLowerCase();
+  const az=(c.azienda||'').toLowerCase();
+  const nm=(c.nome||'').toLowerCase();
+  return macchine.filter(m=>{
+    if(m.contattoId)return m.contattoId===c.id;
+    const f=(m.contatto||'').toLowerCase();
+    if(!f)return false;
+    return f===full||f===az||f===nm||(full&&(f.includes(full)||full.includes(f)))||(az&&az.length>2&&f.includes(az))||(nm&&nm.length>2&&f.includes(nm));
+  });
+}
 function getLastContact(contactId){
   const logs=eventi.filter(e=>e.contactId===contactId);
   if(!logs.length)return contatti.find(c=>c.id===contactId)?.createdAt||today();
@@ -673,7 +763,7 @@ function renderMacchine(){
       <div class="seg-bar" style="background:${col}"></div>
       <div class="card-header"><div class="seg-macchina">${m.macchina}</div><span class="badge seg-tipo-${m.tipo}">${m.tipo==='offerta'?'📤':'📥'} ${m.status==='chiusa'?'Archiviata':(m.tipo==='offerta'?'Offerta':'Richiesta')}</span></div>
       ${det.length?`<div class="seg-dettagli">${det.join(' · ')}</div>`:''}
-      <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span></div>
+      <div class="card-meta">${m.contatto?`<span class="card-meta-item">📞 ${m.contatto}</span>`:''}<span class="card-meta-item">🕐 ${fmtDate(m.createdAt)}</span>${m.dataProgrammata?`<span class="card-meta-item" style="color:var(--blue)">📅 ${new Date(m.dataProgrammata+'T00:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}</span>`:''}</div>
       ${m.note?`<div class="seg-note">${m.note.slice(0,100)}${m.note.length>100?'…':''}</div>`:''}
     </div>`;
   };
@@ -770,7 +860,7 @@ let mmRowCount=0;
 
 function openModalMacchina(id){
   editMId=id||null;
-  document.getElementById('dl-contatti').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
+  document.getElementById('dl-contatti').innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">${c.azienda||''}</option>`).join('');
   
   if(id){
     // Edit single machine - populate single row
@@ -781,6 +871,9 @@ function openModalMacchina(id){
     document.getElementById('m-contatto').value=m?.contatto||'';
     document.getElementById('m-salva-rubrica-row').style.display='none';
     document.getElementById('m-salva-rubrica').checked=false;
+    document.getElementById('m-programma').checked=!!m?.dataProgrammata;
+    document.getElementById('m-data').value=m?.dataProgrammata||'';
+    document.getElementById('m-data-row').style.display=m?.dataProgrammata?'block':'none';
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
     addMacchinaRow(m);
@@ -792,6 +885,9 @@ function openModalMacchina(id){
     document.getElementById('m-contatto').value='';
     document.getElementById('m-salva-rubrica-row').style.display='none';
     document.getElementById('m-salva-rubrica').checked=false;
+    document.getElementById('m-programma').checked=false;
+    document.getElementById('m-data').value='';
+    document.getElementById('m-data-row').style.display='none';
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
     addMacchinaRow();
@@ -840,15 +936,39 @@ function openModalLog(contactId){
 async function salvaContatto(){
   const nome=document.getElementById('c-nome').value.trim();
   if(!nome){alert('Nome obbligatorio');return}
+  pushHistory();
   const obj={id:editCId||uid(),nome,cognome:document.getElementById('c-cognome').value.trim(),azienda:document.getElementById('c-azienda').value.trim(),tipo:document.getElementById('c-tipo').value,paese:document.getElementById('c-paese').value.trim(),cerca:document.getElementById('c-cerca').value.trim(),createdAt:editCId?(contatti.find(c=>c.id===editCId)?.createdAt||today()):today()};
   contatti=editCId?contatti.map(c=>c.id===editCId?obj:c):[obj,...contatti];
   closeModal('modal-contatto');closeModal('modal-detail-c');renderContatti();await saveData();
+}
+
+function resolveContattoId(text){
+  if(!text)return '';
+  const t=text.trim().toLowerCase();
+  // 1. match esatto nome+cognome
+  let hit=contatti.find(c=>(c.nome+' '+(c.cognome||'')).trim().toLowerCase()===t);
+  if(hit)return hit.id;
+  // 2. match esatto azienda
+  hit=contatti.find(c=>(c.azienda||'').trim().toLowerCase()===t);
+  if(hit)return hit.id;
+  // 3. match esatto solo nome
+  hit=contatti.find(c=>(c.nome||'').trim().toLowerCase()===t);
+  if(hit)return hit.id;
+  // 4. il testo contiene il nome o l'azienda (o viceversa)
+  hit=contatti.find(c=>{
+    const full=(c.nome+' '+(c.cognome||'')).trim().toLowerCase();
+    const az=(c.azienda||'').trim().toLowerCase();
+    return (full&&(t.includes(full)||full.includes(t)))||(az&&az.length>2&&(t.includes(az)||az.includes(t)));
+  });
+  return hit?hit.id:'';
 }
 
 async function salvaMultiMacchina(){
   const tipo=document.getElementById('m-tipo').value;
   const status=document.getElementById('m-status').value;
   const contatto=document.getElementById('m-contatto').value.trim();
+  const programmata=document.getElementById('m-programma').checked;
+  const dataProgrammata=programmata?document.getElementById('m-data').value:'';
   const rows=document.querySelectorAll('#mm-list .mm-row');
   const nuove=[];
   let errore=false;
@@ -856,31 +976,38 @@ async function salvaMultiMacchina(){
     const n=row.id.replace('mm-row-','');
     const macchina=document.getElementById('mm-macchina-'+n)?.value.trim();
     if(!macchina){errore=true;return}
+    const old=editMId&&rows.length===1?macchine.find(m=>m.id===editMId):null;
     nuove.push({
       id:editMId&&rows.length===1?editMId:uid(),
       tipo,status,macchina,
       anno:document.getElementById('mm-anno-'+n)?.value||'',
       ore:document.getElementById('mm-ore-'+n)?.value||'',
       prezzo:document.getElementById('mm-prezzo-'+n)?.value||'',
-      paese:'',contatto,
+      paese:'',contatto,contattoId:'',
+      dataProgrammata:dataProgrammata||'',
       note:document.getElementById('mm-note-'+n)?.value.trim()||'',
-      createdAt:editMId&&rows.length===1?(macchine.find(m=>m.id===editMId)?.createdAt||today()):today()
+      createdAt:old?(old.createdAt||today()):today()
     });
   });
   if(errore||!nuove.length){alert('Inserisci almeno il nome di ogni macchina');return}
-  // Salva fonte in rubrica se spuntato
+  pushHistory();
+  // Salva fonte in rubrica se spuntato -> crea contatto e collega
+  let linkId=resolveContattoId(contatto);
   const salvaRub=document.getElementById('m-salva-rubrica');
-  if(salvaRub&&salvaRub.checked&&contatto){
+  if(salvaRub&&salvaRub.checked&&contatto&&!linkId){
     const parts=contatto.split(' ');
     const nuovoContatto={id:uid(),nome:parts[0]||contatto,cognome:parts.slice(1).join(' '),azienda:'',tipo:'misto',paese:'',cerca:tipo==='richiesta'?nuove.map(m=>m.macchina).join(', '):'',createdAt:today()};
     contatti=[nuovoContatto,...contatti];
+    linkId=nuovoContatto.id;
   }
+  // Collega tutte le macchine al contatto risolto
+  nuove.forEach(m=>{m.contattoId=linkId});
   if(editMId&&nuove.length===1){
     macchine=macchine.map(m=>m.id===editMId?nuove[0]:m);
   } else {
     macchine=[...nuove.reverse(),...macchine];
   }
-  closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();renderContatti();await saveData();
+  closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();renderContatti();renderHome();await saveData();
 }
 
 function checkFonteRubrica(){
@@ -900,6 +1027,7 @@ function checkFonteRubrica(){
 async function salvaLog(){
   const testo=document.getElementById('log-testo').value.trim();
   if(!testo){alert('Scrivi qualcosa');return}
+  pushHistory();
   const c=contatti.find(x=>x.id===logContactId);
   const evento={id:uid(),contactId:logContactId,contactName:c?`${c.nome} ${c.cognome||''} ${c.azienda?'('+c.azienda+')':''}`.trim():'',testo,date:new Date().toISOString()};
   eventi=[evento,...eventi];
@@ -915,14 +1043,7 @@ function openDetailC(id){
   const c=contatti.find(x=>x.id===id);if(!c)return;
   const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
   const logs=eventi.filter(e=>e.contactId===id).sort((a,b)=>b.date.localeCompare(a.date));
-  const full=(c.nome+' '+(c.cognome||'')).trim().toLowerCase();
-  const az=(c.azienda||'').toLowerCase();
-  const nm=(c.nome||'').toLowerCase();
-  const macs=macchine.filter(m=>{
-    const f=(m.contatto||'').toLowerCase();
-    if(!f)return false;
-    return f===full||f===az||f===nm||(full&&f.includes(full))||(az&&az.length>2&&f.includes(az))||(nm&&nm.length>2&&f.includes(nm));
-  });
+  const macs=macchineDiContatto(c);
   const macsRich=macs.filter(m=>m.tipo==='richiesta');
   const macsOff=macs.filter(m=>m.tipo==='offerta');
   const giorni=daysAgo(getLastContact(id));
@@ -980,7 +1101,7 @@ function openDetailM(id){
     </div>
     ${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} 
     ${m.contatto?`<div class="detail-label">Fonte</div><div class="detail-value">📞 ${m.contatto}</div>`:''}
-<div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Archiviata'} · ${fmtDate(m.createdAt)}</div>
+<div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Archiviata'} · ${fmtDate(m.createdAt)}</div>${m.dataProgrammata?`<div class="detail-label">📅 Programmata</div><div class="detail-value" style="color:var(--blue)">${new Date(m.dataProgrammata+'T00:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>`:''}
     ${m.note?`<div class="detail-label">Note</div><div class="detail-value">${m.note}</div>`:''}
     ${m.tipo==='offerta'&&m.status==='aperta'?matchHtmlContatti(findMatchingContatti(m),m.id):''}
     <div class="detail-actions">
@@ -1027,10 +1148,10 @@ function matchHtmlMacchine(matches){
 }
 
 // ── ELIMINA ───────────────────────────────────────────
-async function eliminaContatto(id){if(!confirm('Eliminare?'))return;deletedIds.push(id);eventi.filter(e=>e.contactId===id).forEach(e=>deletedIds.push(e.id));contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
-async function eliminaM(id){if(!confirm('Eliminare?'))return;deletedIds.push(id);macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
-async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;deletedIds.push(logId);eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
-async function toggleM(id){macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
+async function eliminaContatto(id){if(!confirm('Eliminare?'))return;pushHistory();deletedIds.push(id);eventi.filter(e=>e.contactId===id).forEach(e=>deletedIds.push(e.id));contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
+async function eliminaM(id){if(!confirm('Eliminare?'))return;pushHistory();deletedIds.push(id);macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
+async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;pushHistory();deletedIds.push(logId);eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
+async function toggleM(id){pushHistory();macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
 
 
 
@@ -1118,10 +1239,12 @@ if(sessionStorage.getItem('crm_auth')==='1')loadData();
 <!-- GLOBAL SEARCH RESULTS -->
 <div class="gsr-overlay hidden" id="gsr-overlay">
   <div class="gsr-header">
-    <button class="gsr-back" onclick="closeGlobalSearch()">← Indietro</button>
-    <div class="gsr-query" id="gsr-query-label"></div>
+    <div style="max-width:680px;margin:0 auto;width:100%;display:flex;align-items:center;gap:12px">
+      <button class="gsr-back" onclick="closeGlobalSearch()">← Indietro</button>
+      <div class="gsr-query" id="gsr-query-label"></div>
+    </div>
   </div>
-  <div id="gsr-content"></div>
+  <div id="gsr-content" class="gsr-content-wrap"></div>
 </div>
 </body>
 </html>
