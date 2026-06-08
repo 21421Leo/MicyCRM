@@ -168,6 +168,8 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 .mm-row-del{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:0 4px;line-height:1}
 .mm-row input,.mm-row select{background:var(--sur);border:1px solid var(--bor)}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -206,7 +208,8 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
       <input class="global-search-input" id="global-search" placeholder="Cerca tutto — contatti, macchine, log..." oninput="onGlobalSearch(this.value)" onfocus="if(this.value.trim())showGlobalResults(this.value)">
     </div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('contatti')">👤 Rubrica</button>
+      <button class="tab active" onclick="switchTab('home')">🏠 Home</button>
+      <button class="tab" onclick="switchTab('contatti')">👤 Rubrica</button>
       <button class="tab" onclick="switchTab('macchine')">🚜 Macchine</button>
       <button class="tab" onclick="switchTab('eventi')">📋 Events</button>
     </div>
@@ -214,8 +217,11 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 
   <div class="content">
 
+    <!-- TAB HOME -->
+    <div id="view-home"></div>
+
     <!-- TAB CONTATTI -->
-    <div id="view-contatti">
+    <div id="view-contatti" style="display:none">
       <div id="remind-box"></div>
       <div id="stats-contatti" class="stats-bar"></div>
       <button class="btn-add" style="width:100%;margin-bottom:14px;padding:13px;font-size:15px;border-radius:var(--rad)" onclick="openModalContatto()">+ Nuovo contatto</button>
@@ -298,21 +304,11 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
         </select>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-input" id="m-categoria">
-          <option value="">Auto (dal nome)</option>
-          <option value="Escavatori">Escavatori</option>
-          <option value="Pale gommate">Pale gommate</option>
-          <option value="Bulldozer">Bulldozer</option>
-          <option value="Dumper">Dumper</option>
-          <option value="Terne">Terne</option>
-          <option value="Minipale">Minipale</option>
-          <option value="Altro">Altro</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome..." list="dl-contatti"><datalist id="dl-contatti"></datalist></div>
-    </div>
+    <div class="form-group"><label class="form-label">Fonte (contatto)</label><input class="form-input" id="m-contatto" placeholder="Nome contatto..." list="dl-contatti" oninput="checkFonteRubrica()"><datalist id="dl-contatti"></datalist></div>
+    <label id="m-salva-rubrica-row" style="display:none;align-items:center;gap:8px;font-size:13px;color:var(--txt2);margin:-4px 0 14px;cursor:pointer">
+      <input type="checkbox" id="m-salva-rubrica" style="width:16px;height:16px;accent-color:var(--acc)">
+      <span>Salva "<span id="m-fonte-nome"></span>" in rubrica come nuovo contatto</span>
+    </label>
     <div id="mm-list"></div>
     <button onclick="addMacchinaRow()" style="width:100%;background:transparent;border:1px dashed var(--bor);border-radius:8px;padding:10px;color:var(--acc);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:14px">+ Aggiungi macchina</button>
     <div class="form-actions">
@@ -347,9 +343,19 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
 </div>
 
 <script>
-const API='https://bitter-moon-4ac4.francesco-403.workers.dev';
+const OLD_KV_API='https://bitter-moon-4ac4.francesco-403.workers.dev'; // solo per migrazione una-tantum
+const FIREBASE_CONFIG={
+  apiKey:"AIzaSyAvr8vPp6cwH5rqbZBS3OusB2PlFi5lVv0",
+  authDomain:"micy-crm.firebaseapp.com",
+  projectId:"micy-crm",
+  storageBucket:"micy-crm.firebasestorage.app",
+  messagingSenderId:"809173406101",
+  appId:"1:809173406101:web:bdfa261a9522305cba269c"
+};
+let db=null,dataRef=null,firstSnap=true;
 const PWD='micy2024';
 const REMIND_DAYS=60;
+let deletedIds=[];
 
 let contatti=[],macchine=[],eventi=[],filterC='tutti',filterM='tutti',editCId=null,editMId=null,logContactId=null,currentTab='contatti',saving=false;
 
@@ -382,41 +388,103 @@ function setSync(state,text){
   document.getElementById('sync-dot').className='sync-dot '+state;
   document.getElementById('sync-label').textContent=text;
 }
+function initFirebase(){
+  if(db)return;
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db=firebase.firestore();
+  dataRef=db.collection('crm').doc('data');
+}
+
+async function migrateFromKV(){
+  try{
+    const r=await fetch(OLD_KV_API,{method:'GET'});
+    const d=await r.json();
+    const seed={
+      contatti:d.contatti||d.record?.contatti||[],
+      macchine:d.macchine||d.record?.macchine||[],
+      eventi:d.eventi||d.record?.eventi||[],
+      updatedAt:Date.now()
+    };
+    await dataRef.set(seed);
+  }catch(e){
+    await dataRef.set({contatti:[],macchine:[],eventi:[],updatedAt:Date.now()});
+  }
+}
+
 async function loadData(){
   setSync('loading','Caricamento...');
   try{
-    const r=await fetch(API,{method:'GET'});
-    const d=await r.json();
-    contatti=(d.contatti||d.record?.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
-    macchine=d.macchine||d.record?.macchine||[];
-    eventi=d.eventi||d.record?.eventi||[];
-    setSync('ok','Sincronizzato');
-    document.getElementById('loading').style.display='none';
-    document.getElementById('app').style.display='block';
-    renderContatti();
+    initFirebase();
+    const snap=await dataRef.get();
+    if(!snap.exists){
+      setSync('loading','Migrazione dati...');
+      await migrateFromKV();
+    }
+    // Real-time: ogni modifica (anche di Riccardo) aggiorna l'app all'istante
+    dataRef.onSnapshot(snap=>{
+      if(!snap.exists)return;
+      const d=snap.data();
+      contatti=(d.contatti||[]).map(x=>x.tipo==='broker'?{...x,tipo:'misto'}:x);
+      macchine=d.macchine||[];
+      eventi=d.eventi||[];
+      setSync('ok','Sincronizzato');
+      if(firstSnap){
+        firstSnap=false;
+        document.getElementById('loading').style.display='none';
+        document.getElementById('app').style.display='block';
+        renderHome();
+      } else {
+        rerenderCurrent();
+      }
+    },err=>{
+      setSync('err','Errore sync');
+    });
   }catch(e){
     setSync('err','Errore');
-    document.getElementById('loading').innerHTML='<div class="loading-logo">◈ CRM MACCHINE</div><div style="color:var(--red);font-size:13px;margin-top:16px;text-align:center">Errore connessione.<br>Controlla internet e ricarica.</div>';
+    document.getElementById('loading').innerHTML='<div class="loading-logo">\u25c8 CRM MACCHINE</div><div style="color:var(--red);font-size:13px;margin-top:16px;text-align:center">Errore connessione.<br>Controlla internet e ricarica.</div>';
   }
 }
+
+// Ridisegna la scheda attualmente aperta (senza chiudere modali aperti)
+function rerenderCurrent(){
+  if(currentTab==='home')renderHome();
+  else if(currentTab==='contatti')renderContatti();
+  else if(currentTab==='macchine')renderMacchine();
+  else if(currentTab==='eventi')renderEventi();
+}
+
 async function saveData(){
-  if(saving)return;saving=true;setSync('loading','Salvataggio...');
+  setSync('loading','Salvataggio...');
   try{
-    await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({contatti,macchine,eventi})});
-    setSync('ok','Salvato ✓');
+    // Transazione atomica: legge, fonde per id, scrive. Nessuno sovrascrive il lavoro dell'altro.
+    await db.runTransaction(async tx=>{
+      const snap=await tx.get(dataRef);
+      const rd=snap.exists?snap.data():{contatti:[],macchine:[],eventi:[]};
+      contatti=mergeById(rd.contatti||[],contatti);
+      macchine=mergeById(rd.macchine||[],macchine);
+      eventi=mergeById(rd.eventi||[],eventi);
+      tx.set(dataRef,{contatti,macchine,eventi,updatedAt:Date.now()});
+    });
+    setSync('ok','Salvato');
   }catch(e){setSync('err','Errore salvataggio')}
-  saving=false;
+}
+function mergeById(remote,local){
+  const map={};
+  remote.forEach(x=>{if(x&&x.id)map[x.id]=x});
+  local.forEach(x=>{if(x&&x.id)map[x.id]=x});
+  return Object.values(map).filter(x=>!deletedIds.includes(x.id));
 }
 
 // ── TABS ─────────────────────────────────────────────
 function switchTab(t){
   currentTab=t;
-  const tabs=['contatti','macchine','eventi'];
+  const tabs=['home','contatti','macchine','eventi'];
   tabs.forEach((tab,i)=>{
     document.querySelectorAll('.tab')[i].classList.toggle('active',tab===t);
     document.getElementById('view-'+tab).style.display=tab===t?'':'none';
   });
-  if(t==='contatti')renderContatti();
+  if(t==='home')renderHome();
+  else if(t==='contatti')renderContatti();
   else if(t==='macchine')renderMacchine();
   else renderEventi();
 }
@@ -426,6 +494,99 @@ function setFilterC(f,el){filterC=f;document.querySelectorAll('#view-contatti .c
 function setFilterM(f,el){filterM=f;document.querySelectorAll('#view-macchine .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMacchine()}
 
 // ── RENDER CONTATTI ───────────────────────────────────
+function renderHome(){
+  const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
+  const el=document.getElementById('view-home');
+  const ora=new Date().getHours();
+  const saluto=ora<12?'Buongiorno':(ora<18?'Buon pomeriggio':'Buonasera');
+
+  // KPI
+  const nClienti=contatti.filter(c=>c.tipo==='cliente').length;
+  const nFornitori=contatti.filter(c=>c.tipo==='fornitore').length;
+  const richiesteAperte=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta');
+  const offerteAperte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta');
+
+  // Da risentire (clienti+misti non contattati da REMIND_DAYS+)
+  const daRisentire=contatti.filter(c=>{
+    if(c.tipo==='fornitore')return false;
+    return daysAgo(getLastContact(c.id))>=REMIND_DAYS;
+  }).map(c=>({c,g:daysAgo(getLastContact(c.id))})).sort((a,b)=>b.g-a.g);
+
+  // Ultime richieste (per data)
+  const ultimeRich=[...richiesteAperte].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')||(b.id||'').localeCompare(a.id||'')).slice(0,5);
+  // Ultima attività (log)
+  const ultimiLog=[...eventi].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+
+  const kpi=(num,lab,col,onclick)=>`<div onclick="${onclick||''}" style="flex:1;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rad);padding:16px 12px;text-align:center;cursor:${onclick?'pointer':'default'}">
+    <div style="font-size:28px;font-weight:700;color:${col};font-family:'DM Mono',monospace;line-height:1">${num}</div>
+    <div style="font-size:11px;color:var(--txt3);margin-top:6px;text-transform:uppercase;letter-spacing:.04em">${lab}</div>
+  </div>`;
+
+  let html=`
+  <div style="margin-bottom:18px">
+    <div style="font-size:21px;font-weight:700">${saluto} 👋</div>
+    <div style="color:var(--txt3);font-size:13px;margin-top:2px">${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}</div>
+  </div>
+
+  <div style="display:flex;gap:9px;margin-bottom:11px">
+    ${kpi(contatti.length,'Contatti','var(--acc)',"switchTab('contatti')")}
+    ${kpi(richiesteAperte.length,'Richieste','var(--blue)',"switchTab('macchine');setTimeout(()=>{const b=[...document.querySelectorAll('#view-macchine .chip')].find(x=>x.textContent==='Richieste');if(b)b.click()},50)")}
+    ${kpi(offerteAperte.length,'Offerte','var(--red)',"switchTab('macchine')")}
+  </div>
+  <div style="display:flex;gap:9px;margin-bottom:22px">
+    ${kpi(nClienti,'Clienti','var(--txt)',"switchTab('contatti')")}
+    ${kpi(nFornitori,'Fornitori','var(--txt)',"switchTab('contatti')")}
+    ${kpi(daRisentire.length,'Da risentire',daRisentire.length?'var(--red)':'var(--txt)')}
+  </div>`;
+
+  // Da risentire
+  if(daRisentire.length){
+    html+=`<div class="section-title" style="display:flex;align-items:center;gap:7px;color:var(--red)">⏰ Da risentire <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--txt3)">(${daRisentire.length})</span></div>
+    <div style="margin-bottom:22px">`;
+    daRisentire.slice(0,6).forEach(({c,g})=>{
+      html+=`<div onclick="switchTab('contatti');setTimeout(()=>openDetailC('${c.id}'),60)" style="background:var(--sur);border:1px solid var(--bor);border-left:3px solid var(--red);border-radius:9px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-weight:600;font-size:14px">${c.nome} ${c.cognome||''}</div>${c.azienda?`<div style="font-size:12px;color:var(--txt3)">${c.azienda}</div>`:''}</div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red);white-space:nowrap">${g}gg fa</span>
+      </div>`;
+    });
+    if(daRisentire.length>6)html+=`<div onclick="switchTab('contatti')" style="text-align:center;color:var(--acc);font-size:13px;padding:8px;cursor:pointer">Vedi tutti i ${daRisentire.length} →</div>`;
+    html+=`</div>`;
+  }
+
+  // Ultime richieste
+  if(ultimeRich.length){
+    html+=`<div class="section-title" style="display:flex;align-items:center;gap:7px;color:var(--blue)">📥 Ultime richieste</div>
+    <div style="margin-bottom:22px">`;
+    ultimeRich.forEach(m=>{
+      const det=[m.anno,m.ore?Number(m.ore).toLocaleString('it-IT')+' ore':''].filter(Boolean).join(' · ');
+      html+=`<div onclick="switchTab('macchine');setTimeout(()=>openDetailM('${m.id}'),60)" style="background:var(--sur);border:1px solid var(--bor);border-left:3px solid var(--blue);border-radius:9px;padding:11px 13px;margin-bottom:7px;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600;font-size:14px">${m.macchina}</div><span style="font-size:11px;color:var(--txt3);white-space:nowrap">${fmtDate(m.createdAt)}</span></div>
+        ${m.contatto?`<div style="font-size:12px;color:var(--txt3);margin-top:2px">📞 ${m.contatto}${det?' · '+det:''}</div>`:(det?`<div style="font-size:12px;color:var(--txt3);margin-top:2px">${det}</div>`:'')}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Ultima attività
+  if(ultimiLog.length){
+    html+=`<div class="section-title">🕐 Ultima attività</div><div>`;
+    ultimiLog.forEach(e=>{
+      html+=`<div style="background:var(--sur);border:1px solid var(--bor);border-radius:9px;padding:11px 13px;margin-bottom:7px">
+        <div style="font-size:12px;color:var(--acc);font-weight:600;margin-bottom:3px">${e.contactName||''}</div>
+        <div style="font-size:13px;color:var(--txt2);line-height:1.4">${e.testo.slice(0,120)}${e.testo.length>120?'…':''}</div>
+        <div style="font-size:11px;color:var(--txt3);margin-top:4px">${fmtDate(e.date)}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(!daRisentire.length&&!ultimeRich.length&&!ultimiLog.length){
+    html+=`<div class="empty"><div class="empty-icon">📊</div>Inizia aggiungendo contatti e macchine.</div>`;
+  }
+
+  el.innerHTML=html;
+}
+
 function renderContatti(){
   // Reminder box
   const scaduti=contatti.filter(c=>{
@@ -490,44 +651,21 @@ function getLastContact(contactId){
 }
 
 // ── RENDER MACCHINE ───────────────────────────────────
-const CATEGORIE=['Escavatori','Pale gommate','Bulldozer','Dumper','Terne','Minipale','Altro'];
-const CAT_ICONS={'Escavatori':'\u26cf\ufe0f','Pale gommate':'\ud83d\ude9c','Bulldozer':'\ud83d\udea7','Dumper':'\ud83d\ude9b','Terne':'\ud83d\udd27','Minipale':'\ud83d\udd29','Altro':'\ud83d\udce6'};
-
-function autoCategoria(nome){
-  const n=(nome||'').toLowerCase();
-  // Escavatori: numeri tipo 320, 336, EC, ZX, PC, R9, HX, sigle escavatore
-  if(/\b(ec|zx|pc|zw|hx|r9|wx|js|sk|ze|fh)\d/i.test(n)||/escavat|\b3[0-9]{2}[a-z]?\b|\b2[0-9]{2}[a-z]?\b|\b1[0-9]{2}[a-z]?\b/i.test(n))return 'Escavatori';
-  // Pale gommate: L+numeri, WA, 9xx M/H, 96x 97x 98x, pala gomm
-  if(/\bl\d{2,3}/i.test(n)||/\bwa\d/i.test(n)||/pala gomm|\b9[0-9]{2}[a-z]?\b|\b8[0-9]{2}[a-z]?\b/i.test(n))return 'Pale gommate';
-  // Bulldozer: D+numero, dozer, D9 D6 D5
-  if(/\bd\d[a-z]?\b/i.test(n)||/dozer|bulldoz/i.test(n))return 'Bulldozer';
-  // Dumper: A30 A40 dumper, B30, articolat (FH e' Fiat-Hitachi escavatore)
-  if(/dumper|\ba[34]0|\bb[34]0|articolat/i.test(n))return 'Dumper';
-  // Terne
-  if(/terna|backhoe|\b4[0-9]{2}[ef]\b/i.test(n))return 'Terne';
-  // Minipale
-  if(/minipal|skid|bobcat|\b2[0-9]{2}d?\b.*cingol/i.test(n))return 'Minipale';
-  return 'Altro';
-}
 
 function renderMacchine(){
   const dl=document.getElementById('dl-contatti');
   if(dl)dl.innerHTML=contatti.map(c=>`<option value="${(c.nome+' '+(c.cognome||'')).trim()}">`).join('');
-  const list=macchine.filter(m=>{
-    return filterM==='tutti'||m.tipo===filterM||m.status===filterM;
-  });
   const aperte=macchine.filter(m=>m.status==='aperta').length;
-  const offerte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').length;
-  const richieste=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').length;
+  const offerteN=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').length;
+  const richiesteN=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').length;
   document.getElementById('stats-macchine').innerHTML=`
     <div class="stat-pill"><div class="stat-num">${macchine.length}</div><div class="stat-lbl">Totali</div></div>
     <div class="stat-pill"><div class="stat-num">${aperte}</div><div class="stat-lbl">Aperte</div></div>
-    <div class="stat-pill"><div class="stat-num">${offerte}</div><div class="stat-lbl">Offerte</div></div>
-    <div class="stat-pill"><div class="stat-num">${richieste}</div><div class="stat-lbl">Richieste</div></div>`;
+    <div class="stat-pill"><div class="stat-num">${offerteN}</div><div class="stat-lbl">Offerte</div></div>
+    <div class="stat-pill"><div class="stat-num">${richiesteN}</div><div class="stat-lbl">Richieste</div></div>`;
   const el=document.getElementById('list-macchine');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🚜</div>Nessuna macchina ancora.</div>`;return}
 
-  // Group by categoria
+  const byDate=(a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')||(b.id||'').localeCompare(a.id||'');
   const cardHtml=(m)=>{
     const col=m.status==='chiusa'?'var(--txt3)':(m.tipo==='offerta'?'var(--red)':'var(--blue)');
     let det=[];if(m.anno)det.push(m.anno);if(m.ore)det.push(Number(m.ore).toLocaleString('it-IT')+' ore');if(m.prezzo)det.push(fmtE(m.prezzo));
@@ -539,28 +677,37 @@ function renderMacchine(){
       ${m.note?`<div class="seg-note">${m.note.slice(0,100)}${m.note.length>100?'…':''}</div>`:''}
     </div>`;
   };
-
-  // Build category groups
-  const groups={};
-  CATEGORIE.forEach(cat=>groups[cat]=[]);
-  list.forEach(m=>{
-    const cat=m.categoria||autoCategoria(m.macchina);
-    if(!groups[cat])groups[cat]=[];
-    groups[cat].push(m);
-  });
-
-  let html='';
-  CATEGORIE.forEach(cat=>{
-    const items=groups[cat];
-    if(!items.length)return;
-    html+=`<div style="margin-bottom:22px">
-      <div style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid var(--bor);display:flex;justify-content:space-between;align-items:center">
-        <span>${CAT_ICONS[cat]||''} ${cat}</span>
-        <span style="color:var(--txt3);font-family:'DM Mono',monospace;font-size:11px">${items.length}</span>
+  const sezione=(titolo,colore,items)=>{
+    if(!items.length)return'';
+    return`<div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:${colore};text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid ${colore};display:flex;justify-content:space-between;align-items:center">
+        <span>${titolo}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">${items.length}</span>
       </div>
       ${items.map(cardHtml).join('')}
     </div>`;
-  });
+  };
+
+  // Filtro attivo
+  let html='';
+  const richiesteAperte=macchine.filter(m=>m.tipo==='richiesta'&&m.status==='aperta').sort(byDate);
+  const offerteAperte=macchine.filter(m=>m.tipo==='offerta'&&m.status==='aperta').sort(byDate);
+  const archiviate=macchine.filter(m=>m.status==='chiusa').sort(byDate);
+
+  if(filterM==='richiesta'){
+    html=sezione('📥 Richieste — cosa cercano','var(--blue)',richiesteAperte);
+  } else if(filterM==='offerta'){
+    html=sezione('📤 Offerte — cosa vendono','var(--red)',offerteAperte);
+  } else if(filterM==='chiusa'){
+    html=sezione('📦 Archiviate','var(--txt3)',archiviate);
+  } else {
+    // Tutti: richieste sempre in cima per averle subito all'occhio
+    html=sezione('📥 Richieste — cosa cercano','var(--blue)',richiesteAperte)
+        +sezione('📤 Offerte — cosa vendono','var(--red)',offerteAperte)
+        +(archiviate.length?sezione('📦 Archiviate','var(--txt3)',archiviate):'');
+  }
+
+  if(!html){el.innerHTML=`<div class="empty"><div class="empty-icon">🚜</div>Nessuna macchina ancora.</div>`;return}
   el.innerHTML=html;
 }
 
@@ -631,8 +778,9 @@ function openModalMacchina(id){
     document.getElementById('mm-title').textContent='Modifica macchina';
     document.getElementById('m-tipo').value=m?.tipo||'offerta';
     document.getElementById('m-status').value=m?.status||'aperta';
-    document.getElementById('m-categoria').value=m?.categoria||'';
     document.getElementById('m-contatto').value=m?.contatto||'';
+    document.getElementById('m-salva-rubrica-row').style.display='none';
+    document.getElementById('m-salva-rubrica').checked=false;
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
     addMacchinaRow(m);
@@ -641,8 +789,9 @@ function openModalMacchina(id){
     document.getElementById('mm-title').textContent='Macchine in giro';
     document.getElementById('m-tipo').value='offerta';
     document.getElementById('m-status').value='aperta';
-    document.getElementById('m-categoria').value='';
     document.getElementById('m-contatto').value='';
+    document.getElementById('m-salva-rubrica-row').style.display='none';
+    document.getElementById('m-salva-rubrica').checked=false;
     mmRowCount=0;
     document.getElementById('mm-list').innerHTML='';
     addMacchinaRow();
@@ -699,7 +848,6 @@ async function salvaContatto(){
 async function salvaMultiMacchina(){
   const tipo=document.getElementById('m-tipo').value;
   const status=document.getElementById('m-status').value;
-  const categoria=document.getElementById('m-categoria').value;
   const contatto=document.getElementById('m-contatto').value.trim();
   const rows=document.querySelectorAll('#mm-list .mm-row');
   const nuove=[];
@@ -710,7 +858,7 @@ async function salvaMultiMacchina(){
     if(!macchina){errore=true;return}
     nuove.push({
       id:editMId&&rows.length===1?editMId:uid(),
-      tipo,status,macchina,categoria,
+      tipo,status,macchina,
       anno:document.getElementById('mm-anno-'+n)?.value||'',
       ore:document.getElementById('mm-ore-'+n)?.value||'',
       prezzo:document.getElementById('mm-prezzo-'+n)?.value||'',
@@ -720,12 +868,33 @@ async function salvaMultiMacchina(){
     });
   });
   if(errore||!nuove.length){alert('Inserisci almeno il nome di ogni macchina');return}
+  // Salva fonte in rubrica se spuntato
+  const salvaRub=document.getElementById('m-salva-rubrica');
+  if(salvaRub&&salvaRub.checked&&contatto){
+    const parts=contatto.split(' ');
+    const nuovoContatto={id:uid(),nome:parts[0]||contatto,cognome:parts.slice(1).join(' '),azienda:'',tipo:'misto',paese:'',cerca:tipo==='richiesta'?nuove.map(m=>m.macchina).join(', '):'',createdAt:today()};
+    contatti=[nuovoContatto,...contatti];
+  }
   if(editMId&&nuove.length===1){
     macchine=macchine.map(m=>m.id===editMId?nuove[0]:m);
   } else {
     macchine=[...nuove.reverse(),...macchine];
   }
-  closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();await saveData();
+  closeModal('modal-macchina');closeModal('modal-detail-m');renderMacchine();renderContatti();await saveData();
+}
+
+function checkFonteRubrica(){
+  const val=document.getElementById('m-contatto').value.trim();
+  const row=document.getElementById('m-salva-rubrica-row');
+  const cb=document.getElementById('m-salva-rubrica');
+  if(!val){row.style.display='none';cb.checked=false;return}
+  // Esiste già in rubrica?
+  const esiste=contatti.some(c=>{
+    const full=(c.nome+' '+(c.cognome||'')).trim().toLowerCase();
+    return full===val.toLowerCase()||(c.azienda||'').toLowerCase()===val.toLowerCase()||c.nome.toLowerCase()===val.toLowerCase();
+  });
+  if(esiste){row.style.display='none';cb.checked=false}
+  else{row.style.display='flex';document.getElementById('m-fonte-nome').textContent=val}
 }
 
 async function salvaLog(){
@@ -746,7 +915,16 @@ function openDetailC(id){
   const c=contatti.find(x=>x.id===id);if(!c)return;
   const TL={cliente:'Cliente',fornitore:'Fornitore',broker:'Commerciante',misto:'Commerciante'};
   const logs=eventi.filter(e=>e.contactId===id).sort((a,b)=>b.date.localeCompare(a.date));
-  const macs=macchine.filter(m=>m.contatto===(c.nome+' '+(c.cognome||'')).trim()||m.contatto===c.azienda);
+  const full=(c.nome+' '+(c.cognome||'')).trim().toLowerCase();
+  const az=(c.azienda||'').toLowerCase();
+  const nm=(c.nome||'').toLowerCase();
+  const macs=macchine.filter(m=>{
+    const f=(m.contatto||'').toLowerCase();
+    if(!f)return false;
+    return f===full||f===az||f===nm||(full&&f.includes(full))||(az&&az.length>2&&f.includes(az))||(nm&&nm.length>2&&f.includes(nm));
+  });
+  const macsRich=macs.filter(m=>m.tipo==='richiesta');
+  const macsOff=macs.filter(m=>m.tipo==='offerta');
   const giorni=daysAgo(getLastContact(id));
 
   let logsHtml=logs.length?`<div class="events-feed" style="margin-top:8px">${logs.map((e,i)=>`
@@ -761,7 +939,10 @@ function openDetailC(id){
       </div>
     </div>`).join('')}</div>`:'<div style="font-size:13px;color:var(--txt3);padding:12px 0">Nessun log ancora.</div>';
 
-  let macsHtml=macs.length?macs.map(m=>`<div style="background:var(--sur2);border-radius:7px;padding:8px 10px;margin-bottom:6px;font-size:13px"><span class="badge seg-tipo-${m.tipo}" style="font-size:10px">${m.tipo==='offerta'?'Offerta':'Richiesta'}</span> <strong style="margin-left:5px">${m.macchina}</strong>${m.anno||m.ore||m.prezzo?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--acc2);margin-top:3px">${[m.anno,m.ore?m.ore+' ore':'',fmtE(m.prezzo)].filter(Boolean).join(' · ')}</div>`:''}</div>`).join(''):'';
+  const macCard=(m)=>`<div style="background:var(--sur2);border-radius:7px;padding:8px 10px;margin-bottom:6px;font-size:13px;cursor:pointer" onclick="closeModal('modal-detail-c');openDetailM('${m.id}')"><span class="badge seg-tipo-${m.tipo}" style="font-size:10px">${m.tipo==='offerta'?'📤 Offerta':'📥 Richiesta'}${m.status==='chiusa'?' · archiviata':''}</span> <strong style="margin-left:5px">${m.macchina}</strong>${m.anno||m.ore||m.prezzo?`<div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--acc2);margin-top:3px">${[m.anno,m.ore?m.ore+' ore':'',fmtE(m.prezzo)].filter(Boolean).join(' · ')}</div>`:''}</div>`;
+  let macsHtml='';
+  if(macsRich.length)macsHtml+=`<div style="font-size:11px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 6px">📥 Cerca (${macsRich.length})</div>`+macsRich.map(macCard).join('');
+  if(macsOff.length)macsHtml+=`<div style="font-size:11px;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 6px">📤 Offre (${macsOff.length})</div>`+macsOff.map(macCard).join('');
 
   document.getElementById('detail-c-content').innerHTML=`
     <div class="modal-handle"></div>
@@ -799,11 +980,7 @@ function openDetailM(id){
     </div>
     ${det.length?`<div style="display:grid;grid-template-columns:repeat(${det.length},1fr);gap:8px;margin-bottom:14px">${det.map(d=>`<div style="background:var(--sur2);border-radius:7px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--txt3)">${d.l}</div><div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)">${d.v}</div></div>`).join('')}</div>`:''} 
     ${m.contatto?`<div class="detail-label">Fonte</div><div class="detail-value">📞 ${m.contatto}</div>`:''}
-    <div class="detail-label">Categoria</div>
-    <select class="form-input" style="margin-bottom:14px" onchange="cambiaCategoria('${m.id}',this.value)">
-      ${['Escavatori','Pale gommate','Bulldozer','Dumper','Terne','Minipale','Altro'].map(cat=>`<option value="${cat}" ${(m.categoria||autoCategoria(m.macchina))===cat?'selected':''}>${cat}</option>`).join('')}
-    </select>
-    <div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Archiviata'} · ${fmtDate(m.createdAt)}</div>
+<div class="detail-label">Stato</div><div class="detail-value">${m.status==='aperta'?'🟡 Aperta':'⚫ Archiviata'} · ${fmtDate(m.createdAt)}</div>
     ${m.note?`<div class="detail-label">Note</div><div class="detail-value">${m.note}</div>`:''}
     ${m.tipo==='offerta'&&m.status==='aperta'?matchHtmlContatti(findMatchingContatti(m),m.id):''}
     <div class="detail-actions">
@@ -850,10 +1027,9 @@ function matchHtmlMacchine(matches){
 }
 
 // ── ELIMINA ───────────────────────────────────────────
-async function eliminaContatto(id){if(!confirm('Eliminare?'))return;contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
-async function eliminaM(id){if(!confirm('Eliminare?'))return;macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
-async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
-async function cambiaCategoria(id,cat){macchine=macchine.map(m=>m.id===id?{...m,categoria:cat}:m);renderMacchine();await saveData()}
+async function eliminaContatto(id){if(!confirm('Eliminare?'))return;deletedIds.push(id);eventi.filter(e=>e.contactId===id).forEach(e=>deletedIds.push(e.id));contatti=contatti.filter(c=>c.id!==id);eventi=eventi.filter(e=>e.contactId!==id);closeModal('modal-detail-c');renderContatti();await saveData()}
+async function eliminaM(id){if(!confirm('Eliminare?'))return;deletedIds.push(id);macchine=macchine.filter(m=>m.id!==id);closeModal('modal-detail-m');renderMacchine();await saveData()}
+async function eliminaLog(logId,contactId){if(!confirm('Eliminare questo log?'))return;deletedIds.push(logId);eventi=eventi.filter(e=>e.id!==logId);openDetailC(contactId);renderEventi();await saveData()}
 async function toggleM(id){macchine=macchine.map(m=>m.id===id?{...m,status:m.status==='aperta'?'chiusa':'aperta'}:m);closeModal('modal-detail-m');renderMacchine();await saveData()}
 
 
