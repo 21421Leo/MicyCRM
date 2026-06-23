@@ -204,6 +204,7 @@ mark{background:rgba(212,168,67,.3);color:var(--acc2);border-radius:2px;padding:
       <div style="display:flex;align-items:center;gap:9px">
         <button id="btn-undo" onclick="undo()" title="Annulla" style="background:var(--sur2);border:1px solid var(--bor);color:var(--txt);border-radius:7px;width:36px;height:33px;font-size:16px;cursor:pointer;opacity:.35" disabled>↶</button>
         <button id="btn-redo" onclick="redo()" title="Ripeti" style="background:var(--sur2);border:1px solid var(--bor);color:var(--txt);border-radius:7px;width:36px;height:33px;font-size:16px;cursor:pointer;opacity:.35" disabled>↷</button>
+        <button onclick="esportaBackup()" title="Scarica backup JSON" style="background:var(--sur2);border:1px solid var(--bor);color:var(--txt);border-radius:7px;width:36px;height:33px;font-size:15px;cursor:pointer">⤓</button>
         <span class="sync-dot" id="sync-dot"></span>
         <span class="sync-label" id="sync-label">...</span>
       </div>
@@ -510,6 +511,16 @@ async function redo(){
   updateUndoButtons();
   rerenderCurrent();
   await saveData();
+}
+function esportaBackup(){
+  const data={contatti,macchine,eventi,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='micy-crm-backup-'+today()+'.json';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 function updateUndoButtons(){
   const u=document.getElementById('btn-undo'),r=document.getElementById('btn-redo');
